@@ -50,4 +50,5 @@ jobs:
         git config --local user.name "github-actions[bot]"
         git add official/docs.md
         git commit -m "Update Claude Code documentation - $(date +'%Y-%m-%d')"
+        git pull --rebase
         git push
