@@ -85,3 +85,35 @@
 - Verify git branch
 - Confirm file paths are absolute
 - Look for uncommitted changes
+
+## Token and Cost Gotchas
+
+### Compounding Token Usage
+*Source: Community guide - 2024*
+
+**Problem**: Every message reprocesses entire chat history
+**Impact**: Exponentially increasing costs in long conversations
+**Solution**: Use `/clear` frequently between tasks
+
+### Model Selection Confusion
+*Source: Community guide - 2024*
+
+**Problem**: Claude Code defaults to most expensive model (Opus 4)
+**Solution**: Use `/model` to switch to lighter models for simple tasks
+**Strategy**: Start with powerful model for planning, switch to cheaper for implementation
+
+## Advanced Features
+
+### Headless Mode Limitations
+*Source: Community guide - 2024*
+
+**Problem**: `claude -p` runs non-interactively, harder to debug
+**Solution**: Use `--verbose` flag for debugging headless operations
+**Use cases**: CI/CD, pre-commit hooks, automated migrations
+
+### Multi-Agent Coordination
+*Source: Community guide - 2024*
+
+**Problem**: Multiple Claude instances can conflict on same codebase
+**Solution**: Use git worktrees for isolated branches per agent
+**Setup**: Script to create worktree + copy `.env` and `.claude` files

@@ -200,3 +200,91 @@ if data.get('tool_name') == 'Task':
         print("Note: Follow RESTful patterns in ./docs/api-guide.md", file=sys.stderr)
         sys.exit(2)
 ```
+
+## Multi-Agent Workflows
+
+### Git Worktree Setup for Parallel Agents
+*Source: Community guide - 2024*
+
+```bash
+#!/bin/bash
+# setup-worktree.sh - Create isolated worktree for Claude agent
+set -euo pipefail
+
+BRANCH=$1
+WORKTREE_DIR="worktrees/$BRANCH"
+
+# Create worktree
+git worktree add "$WORKTREE_DIR" -b "$BRANCH"
+
+# Copy config files
+cp .env "$WORKTREE_DIR/.env" 2>/dev/null || true
+cp -r .claude "$WORKTREE_DIR/.claude" 2>/dev/null || true
+
+# Open in new terminal
+echo "Worktree created at: $WORKTREE_DIR"
+echo "Run: cd $WORKTREE_DIR && claude"
+```
+
+### Headless Mode for CI/CD
+*Source: Community guide - 2024*
+
+```bash
+# Pre-commit hook using headless Claude
+#!/bin/bash
+# .git/hooks/pre-commit
+
+# Run Claude in headless mode to check code quality
+claude -p "Review staged files for code quality issues" --verbose
+
+# Run as linter
+claude -p "Check if commit message follows conventional commits format"
+
+# Migration helper
+claude -p "Update all import statements from old API to new API"
+```
+
+### Custom Slash Commands
+*Source: Community guide - 2024*
+
+```markdown
+<!-- .claude/commands/fix-github-issue.md -->
+# Fix GitHub Issue
+
+Fetch issue #{number} from GitHub and implement a fix:
+
+1. Read the issue description and comments
+2. Understand the problem
+3. Create a test that reproduces the issue
+4. Implement the fix
+5. Verify tests pass
+6. Create a commit with message "fix: #{number} - {summary}"
+```
+
+### TDD Workflow Example
+*Source: Community guide - 2024*
+
+```bash
+# Complete TDD cycle
+claude do "Write tests for the user authentication feature - DO NOT implement yet"
+claude do "Run the tests and confirm they fail"
+claude do "Now implement just enough code to make the tests pass"
+claude do "Refactor the implementation while keeping tests green"
+```
+
+### Safe YOLO Mode Pattern
+*Source: Community guide - 2024*
+
+```bash
+# Only in isolated environment!
+# Useful for large refactoring or boilerplate generation
+
+# First, ensure no network access
+claude do "Disable network interfaces"
+
+# Then run in skip-permissions mode
+claude --dangerously-skip-permissions do "Apply ESLint fixes to entire codebase"
+
+# Re-enable safety
+claude do "Re-enable network interfaces"
+```

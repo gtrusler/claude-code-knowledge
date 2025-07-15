@@ -16,11 +16,17 @@ Each entry includes:
 ### December 2024
 - **Hooks System** introduced - customize Claude Code behavior with shell commands
 - **MCP (Model Context Protocol)** support - integrate with external tools
-- *Source: Official docs*
+- **Plan Mode** (`shift+tab` twice) - enables thorough evaluation before execution
+- **Think Keywords** - `think`, `think hard`, `think harder`, `ultrathink` for more computation
+- **Double-tap Escape** - fork conversations by going back in history
+- *Source: Official docs + Community discoveries*
 
 ### November 2024
 - Initial Claude Code release
-- *Source: Anthropic announcement*
+- **Headless Mode** (`claude -p`) for non-interactive automation
+- `/compact` command for context summarization
+- `-continue` flag to reload previous conversations
+- *Source: Anthropic announcement + Community guide*
 
 ---
 
