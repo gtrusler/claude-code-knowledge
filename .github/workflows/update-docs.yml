@@ -1,0 +1,131 @@
+name: Update Claude Code Docs
+
+on:
+  schedule:
+    # Run daily at 6 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install requests beautifulsoup4 markdownify
+    
+    - name: Scrape documentation
+      run: |
+        python3 << 'EOF'
+        import requests
+        from bs4 import BeautifulSoup
+        import markdownify
+        from datetime import datetime
+        
+        def scrape_claude_docs():
+            """Scrape Claude Code documentation from Anthropic"""
+            base_url = "https://docs.anthropic.com/en/docs/claude-code"
+            
+            try:
+                # Main Claude Code page
+                response = requests.get(base_url, timeout=30)
+                response.raise_for_status()
+                
+                soup = BeautifulSoup(response.text, 'html.parser')
+                
+                # Look for main content area (adjust selectors as needed)
+                content = soup.find('main') or soup.find('article') or soup.find('div', {'class': 'content'})
+                
+                if not content:
+                    return "Unable to locate main content. Page structure may have changed."
+                
+                # Convert to markdown
+                markdown = markdownify.markdownify(str(content), heading_style="ATX")
+                
+                # Add metadata
+                header = f"""# Claude Code Official Documentation
+
+*Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}*
+*Source: {base_url}*
+
+---
+
+"""
+                return header + markdown
+                
+            except Exception as e:
+                return f"Error scraping documentation: {str(e)}"
+        
+        # Scrape and save
+        docs_content = scrape_claude_docs()
+        
+        with open('official/docs.md', 'w') as f:
+            f.write(docs_content)
+        
+        print("Documentation updated successfully")
+        EOF
+    
+    - name: Scrape subpages
+      run: |
+        python3 << 'EOF'
+        import requests
+        from bs4 import BeautifulSoup
+        import markdownify
+        import os
+        
+        # List of subpages to scrape
+        subpages = [
+            'slash-commands',
+            'mcp',
+            'hooks',
+            'settings',
+            'getting-started'
+        ]
+        
+        for page in subpages:
+            url = f"https://docs.anthropic.com/en/docs/claude-code/{page}"
+            
+            try:
+                response = requests.get(url, timeout=30)
+                if response.status_code == 200:
+                    soup = BeautifulSoup(response.text, 'html.parser')
+                    content = soup.find('main') or soup.find('article')
+                    
+                    if content:
+                        markdown = markdownify.markdownify(str(content), heading_style="ATX")
+                        
+                        # Append to main docs
+                        with open('official/docs.md', 'a') as f:
+                            f.write(f"\n\n---\n\n## {page.replace('-', ' ').title()}\n\n")
+                            f.write(markdown)
+                        
+                        print(f"Added {page} to documentation")
+            except Exception as e:
+                print(f"Failed to scrape {page}: {e}")
+        EOF
+    
+    - name: Check for changes
+      id: verify
+      run: |
+        if [[ -n $(git status --porcelain) ]]; then
+          echo "changes=true" >> $GITHUB_OUTPUT
+        else
+          echo "changes=false" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Commit and push
+      if: steps.verify.outputs.changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add official/docs.md
+        git commit -m "Update Claude Code documentation - $(date +'%Y-%m-%d')"
+        git push
