@@ -93,11 +93,14 @@ jobs:
                 for element in content.find_all(class_=['sidebar', 'navigation', 'menu', 'breadcrumb']):
                     element.decompose()
                 
+                # Remove script and style tags before conversion
+                for tag in content.find_all(['script', 'style', 'meta', 'link']):
+                    tag.decompose()
+                
                 # Convert to markdown with better options
                 markdown = markdownify.markdownify(
                     str(content), 
                     heading_style="ATX",
-                    strip=['script', 'style', 'meta', 'link'],
                     convert=['p', 'div', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 
                             'ul', 'ol', 'li', 'a', 'code', 'pre', 'blockquote', 
                             'strong', 'em', 'b', 'i']
