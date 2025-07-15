@@ -1,6 +1,6 @@
 # Claude Code Official Documentation
 
-*Last updated: 2025-07-15 17:45 UTC*
+*Last updated: 2025-07-15 17:48 UTC*
 *Scraped 28 pages from docs.anthropic.com*
 
 ---
@@ -1227,12 +1227,12 @@ Search...
 Navigation
 Build with Claude
 Claude Code GitHub Actions
-[Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
-##### Getting started
-* [Overview](/en/docs/claude-code/overview)
-* [Quickstart](/en/docs/claude-code/quickstart)
-* [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+[Getting Started](/en/docs/claude-code/overview)[Developer Guide](/en/docs/claude-code/sdk)[Reference](/en/docs/claude-code/cli-reference)[Resources](/en/docs/claude-code/data-usage)[Release Notes](/en/release-notes/claude-code)
+- [Home](/en/home)
+- [Developer Platform](/en/docs/intro)
+- [Claude Code](/en/docs/claude-code/overview)
+- [Model Context Protocol (MCP)](https://modelcontextprotocol.io)
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
@@ -1255,14 +1255,6 @@ Claude Code GitHub Actions
 * [Add Claude Code to your IDE](/en/docs/claude-code/ide-integrations)
 * [Terminal configuration](/en/docs/claude-code/terminal-config)
 * [Memory management](/en/docs/claude-code/memory)
-##### Reference
-* [CLI reference](/en/docs/claude-code/cli-reference)
-* [Interactive mode](/en/docs/claude-code/interactive-mode)
-* [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
-##### Resources
-* [Data usage](/en/docs/claude-code/data-usage)
-* [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
 Claude Code GitHub Actions brings AI-powered automation to your GitHub workflow. With a simple `@claude` mention in any PR or issue, Claude can analyze your code, create pull requests, implement features, and fix bugs - all while following your project’s standards.
 Claude Code GitHub Actions is currently in beta. Features and functionality may evolve as we refine the experience.
 Claude Code GitHub Actions is built on top of the [Claude Code SDK](/en/docs/claude-code/sdk), which enables programmatic integration of Claude Code into your applications. You can use the SDK to build custom automation workflows beyond GitHub Actions.
@@ -1819,7 +1811,7 @@ suggestions into app-level code that executes every time it is expected to run.
 Hooks execute shell commands with your full user permissions without
 confirmation. You are responsible for ensuring your hooks are safe and secure.
 Anthropic is not liable for any data loss or system damage resulting from hook
-usage. Review [Security Considerations](/_sites/docs.anthropic.com/en/docs/claude-code/hooks#security-considerations).
+usage. Review [Security Considerations](/_sites/docs.anthropic.com/en/docs/claude-code/hooks?ref=dailydev#security-considerations).
 ## [​](#quickstart) Quickstart
 In this quickstart, you’ll add a hook that logs the shell commands that Claude
 Code runs.
@@ -2427,12 +2419,12 @@ Search...
 Navigation
 Configuration
 Add Claude Code to your IDE
-[Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
-##### Getting started
-* [Overview](/en/docs/claude-code/overview)
-* [Quickstart](/en/docs/claude-code/quickstart)
-* [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+[Getting Started](/en/docs/claude-code/overview)[Developer Guide](/en/docs/claude-code/sdk)[Reference](/en/docs/claude-code/cli-reference)[Resources](/en/docs/claude-code/data-usage)[Release Notes](/en/release-notes/claude-code)
+- [Home](/en/home)
+- [Developer Platform](/en/docs/intro)
+- [Claude Code](/en/docs/claude-code/overview)
+- [Model Context Protocol (MCP)](https://modelcontextprotocol.io)
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
@@ -2455,14 +2447,6 @@ Add Claude Code to your IDE
 * [Add Claude Code to your IDE](/en/docs/claude-code/ide-integrations)
 * [Terminal configuration](/en/docs/claude-code/terminal-config)
 * [Memory management](/en/docs/claude-code/memory)
-##### Reference
-* [CLI reference](/en/docs/claude-code/cli-reference)
-* [Interactive mode](/en/docs/claude-code/interactive-mode)
-* [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
-##### Resources
-* [Data usage](/en/docs/claude-code/data-usage)
-* [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
 Claude Code works great with any Integrated Development Environment (IDE) that has a terminal. Just run `claude`, and you’re ready to go.
 In addition, Claude Code provides dedicated integrations for popular IDEs, which provide features like interactive diff viewing, selection context sharing, and more. These integrations currently exist for:
 * **Visual Studio Code** (including popular forks like Cursor, Windsurf, and VSCodium)
@@ -3247,12 +3231,12 @@ Search...
 Navigation
 Configuration
 Manage Claude's memory
-[Getting Started](/en/docs/claude-code/overview)[Developer Guide](/en/docs/claude-code/sdk)[Reference](/en/docs/claude-code/cli-reference)[Resources](/en/docs/claude-code/data-usage)[Release Notes](/en/release-notes/claude-code)
-- [Home](/en/home)
-- [Developer Platform](/en/docs/intro)
-- [Claude Code](/en/docs/claude-code/overview)
-- [Model Context Protocol (MCP)](https://modelcontextprotocol.io)
-##### Build with Claude Code
+[Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
+##### Getting started
+* [Overview](/en/docs/claude-code/overview)
+* [Quickstart](/en/docs/claude-code/quickstart)
+* [Common workflows](/en/docs/claude-code/common-workflows)
+##### Build with Claude
 * [Claude Code SDK](/en/docs/claude-code/sdk)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
@@ -3275,6 +3259,14 @@ Manage Claude's memory
 * [Add Claude Code to your IDE](/en/docs/claude-code/ide-integrations)
 * [Terminal configuration](/en/docs/claude-code/terminal-config)
 * [Memory management](/en/docs/claude-code/memory)
+##### Reference
+* [CLI reference](/en/docs/claude-code/cli-reference)
+* [Interactive mode](/en/docs/claude-code/interactive-mode)
+* [Slash commands](/en/docs/claude-code/slash-commands)
+* [Hooks](/en/docs/claude-code/hooks)
+##### Resources
+* [Data usage](/en/docs/claude-code/data-usage)
+* [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
 Claude Code can remember your preferences across sessions, like style guidelines and common commands in your workflow.
 ## [​](#determine-memory-type) Determine memory type
 Claude Code offers three memory locations, each serving a different purpose:
@@ -3329,7 +3321,7 @@ Tips:
 * **Review periodically**: Update memories as your project evolves to ensure Claude is always using the most up to date information and context.
 Was this page helpful?
 YesNo
-[Terminal configuration](/en/docs/claude-code/terminal-config)
+[Terminal configuration](/en/docs/claude-code/terminal-config)[CLI reference](/en/docs/claude-code/cli-reference)
 On this page
 
 
@@ -3778,14 +3770,42 @@ Search...
 Navigation
 Getting started
 Quickstart
-[Getting Started](/en/docs/claude-code/overview)[Developer Guide](/en/docs/claude-code/sdk)[Reference](/en/docs/claude-code/cli-reference)[Resources](/en/docs/claude-code/data-usage)[Release Notes](/en/release-notes/claude-code)
-- [Home](/en/home)
-- [Developer Platform](/en/docs/intro)
-- [Claude Code](/en/docs/claude-code/overview)
-- [Model Context Protocol (MCP)](https://modelcontextprotocol.io)
+[Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
+##### Getting started
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
+##### Build with Claude
+* [Claude Code SDK](/en/docs/claude-code/sdk)
+* [GitHub Actions](/en/docs/claude-code/github-actions)
+* [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
+* [Troubleshooting](/en/docs/claude-code/troubleshooting)
+##### Deployment
+* [Overview](/en/docs/claude-code/third-party-integrations)
+* [Amazon Bedrock](/en/docs/claude-code/amazon-bedrock)
+* [Google Vertex AI](/en/docs/claude-code/google-vertex-ai)
+* [Corporate proxy](/en/docs/claude-code/corporate-proxy)
+* [LLM gateway](/en/docs/claude-code/llm-gateway)
+* [Development containers](/en/docs/claude-code/devcontainer)
+##### Administration
+* [Advanced installation](/en/docs/claude-code/setup)
+* [Identity and Access Management](/en/docs/claude-code/iam)
+* [Security](/en/docs/claude-code/security)
+* [Monitoring](/en/docs/claude-code/monitoring-usage)
+* [Costs](/en/docs/claude-code/costs)
+##### Configuration
+* [Settings](/en/docs/claude-code/settings)
+* [Add Claude Code to your IDE](/en/docs/claude-code/ide-integrations)
+* [Terminal configuration](/en/docs/claude-code/terminal-config)
+* [Memory management](/en/docs/claude-code/memory)
+##### Reference
+* [CLI reference](/en/docs/claude-code/cli-reference)
+* [Interactive mode](/en/docs/claude-code/interactive-mode)
+* [Slash commands](/en/docs/claude-code/slash-commands)
+* [Hooks](/en/docs/claude-code/hooks)
+##### Resources
+* [Data usage](/en/docs/claude-code/data-usage)
+* [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
 This quickstart guide will have you using AI-powered coding assistance in just a few minutes. By the end, you’ll understand how to use Claude Code for common development tasks.
 ## [​](#before-you-begin) Before you begin
 Make sure you have:
@@ -4737,12 +4757,12 @@ Search...
 Navigation
 Administration
 Set up Claude Code
-[Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
-##### Getting started
-* [Overview](/en/docs/claude-code/overview)
-* [Quickstart](/en/docs/claude-code/quickstart)
-* [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+[Getting Started](/en/docs/claude-code/overview)[Developer Guide](/en/docs/claude-code/sdk)[Reference](/en/docs/claude-code/cli-reference)[Resources](/en/docs/claude-code/data-usage)[Release Notes](/en/release-notes/claude-code)
+- [Home](/en/home)
+- [Developer Platform](/en/docs/intro)
+- [Claude Code](/en/docs/claude-code/overview)
+- [Model Context Protocol (MCP)](https://modelcontextprotocol.io)
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
@@ -4765,16 +4785,8 @@ Set up Claude Code
 * [Add Claude Code to your IDE](/en/docs/claude-code/ide-integrations)
 * [Terminal configuration](/en/docs/claude-code/terminal-config)
 * [Memory management](/en/docs/claude-code/memory)
-##### Reference
-* [CLI reference](/en/docs/claude-code/cli-reference)
-* [Interactive mode](/en/docs/claude-code/interactive-mode)
-* [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
-##### Resources
-* [Data usage](/en/docs/claude-code/data-usage)
-* [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
 ## [​](#system-requirements) System requirements
-* **Operating Systems**: macOS 10.15+, Ubuntu 20.04+/Debian 10+, or Windows 10+ (with WSL 1, WSL 2, or Git for Windows)
+* **Operating Systems**: macOS 10.15+, Ubuntu 20.04+/Debian 10+, or Windows via WSL
 * **Hardware**: 4GB+ RAM
 * **Software**: [Node.js 18+](https://nodejs.org/en/download)
 * **Network**: Internet connection required for authentication and AI processing
@@ -4798,21 +4810,12 @@ Claude Code offers the following authentication options:
 1. **Anthropic Console**: The default option. Connect through the Anthropic Console and complete the OAuth process. Requires active billing at [console.anthropic.com](https://console.anthropic.com).
 2. **Claude App (with Pro or Max plan)**: Subscribe to Claude’s [Pro or Max plan](https://www.anthropic.com/pricing) for a unified subscription that includes both Claude Code and the web interface. Get more value at the same price point while managing your account in one place. Log in with your Claude.ai account. During launch, choose the option that matches your subscription type.
 3. **Enterprise platforms**: Configure Claude Code to use [Amazon Bedrock or Google Vertex AI](/en/docs/claude-code/third-party-integrations) for enterprise deployments with your existing cloud infrastructure.
-## [​](#windows-setup) Windows setup
-**Option 1: Claude Code within WSL**
-* Both WSL 1 and WSL 2 are supported
-**Option 2: Claude Code on native Windows with Git Bash**
-* Requires [Git for Windows](https://git-scm.com/downloads/win)
-* For portable Git installations, specify the path to your `bash.exe`:
-  ```
-  $env:CLAUDE_CODE_GIT_BASH_PATH="C:\Program Files\Git\bin\bash.exe"
-  ```
 ## [​](#alternative-installation-methods) Alternative installation methods
 Claude Code offers multiple installation methods to suit different environments.
 If you encounter any issues during installation, consult the [troubleshooting guide](/en/docs/claude-code/troubleshooting#linux-permission-issues).
 Run `claude doctor` after installation to check your installation type and version.
 ### [​](#global-npm-installation) Global npm installation
-Traditional method shown in the [install steps above](/_sites/docs.anthropic.com/en/docs/claude-code/setup?fbclid=IwY2xjawLjK3hleHRuA2FlbQIxMQABHvyC5IDSyIq5V4BynE0yU94AuvYFnMAXrliYl5R7qp8BrOOz-mSF1ddju4nD_aem_ffB-uddp5fvnQr2TTxXcqA#install-and-authenticate)
+Traditional method shown in the [install steps above](/_sites/docs.anthropic.com/en/docs/claude-code/setup#install-and-authenticate)
 ### [​](#local-installation) Local installation
 * After global install via npm, use `claude migrate-installer` to move to local
 * Avoids autoupdater npm permission issues
@@ -4862,15 +4865,42 @@ Search...
 Navigation
 Reference
 Slash commands
-[Getting Started](/en/docs/claude-code/overview)[Developer Guide](/en/docs/claude-code/sdk)[Reference](/en/docs/claude-code/cli-reference)[Resources](/en/docs/claude-code/data-usage)[Release Notes](/en/release-notes/claude-code)
-- [Home](/en/home)
-- [Developer Platform](/en/docs/intro)
-- [Claude Code](/en/docs/claude-code/overview)
-- [Model Context Protocol (MCP)](https://modelcontextprotocol.io)
+[Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
+##### Getting started
+* [Overview](/en/docs/claude-code/overview)
+* [Quickstart](/en/docs/claude-code/quickstart)
+* [Common workflows](/en/docs/claude-code/common-workflows)
+##### Build with Claude
+* [Claude Code SDK](/en/docs/claude-code/sdk)
+* [GitHub Actions](/en/docs/claude-code/github-actions)
+* [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
+* [Troubleshooting](/en/docs/claude-code/troubleshooting)
+##### Deployment
+* [Overview](/en/docs/claude-code/third-party-integrations)
+* [Amazon Bedrock](/en/docs/claude-code/amazon-bedrock)
+* [Google Vertex AI](/en/docs/claude-code/google-vertex-ai)
+* [Corporate proxy](/en/docs/claude-code/corporate-proxy)
+* [LLM gateway](/en/docs/claude-code/llm-gateway)
+* [Development containers](/en/docs/claude-code/devcontainer)
+##### Administration
+* [Advanced installation](/en/docs/claude-code/setup)
+* [Identity and Access Management](/en/docs/claude-code/iam)
+* [Security](/en/docs/claude-code/security)
+* [Monitoring](/en/docs/claude-code/monitoring-usage)
+* [Costs](/en/docs/claude-code/costs)
+##### Configuration
+* [Settings](/en/docs/claude-code/settings)
+* [Add Claude Code to your IDE](/en/docs/claude-code/ide-integrations)
+* [Terminal configuration](/en/docs/claude-code/terminal-config)
+* [Memory management](/en/docs/claude-code/memory)
+##### Reference
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
 * [Hooks](/en/docs/claude-code/hooks)
+##### Resources
+* [Data usage](/en/docs/claude-code/data-usage)
+* [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
 ## [​](#built-in-slash-commands) Built-in slash commands
 | Command | Purpose |
 | --- | --- |
@@ -5034,12 +5064,12 @@ Search...
 Navigation
 Configuration
 Optimize your terminal setup
-[Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
-##### Getting started
-* [Overview](/en/docs/claude-code/overview)
-* [Quickstart](/en/docs/claude-code/quickstart)
-* [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+[Getting Started](/en/docs/claude-code/overview)[Developer Guide](/en/docs/claude-code/sdk)[Reference](/en/docs/claude-code/cli-reference)[Resources](/en/docs/claude-code/data-usage)[Release Notes](/en/release-notes/claude-code)
+- [Home](/en/home)
+- [Developer Platform](/en/docs/intro)
+- [Claude Code](/en/docs/claude-code/overview)
+- [Model Context Protocol (MCP)](https://modelcontextprotocol.io)
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
@@ -5062,14 +5092,6 @@ Optimize your terminal setup
 * [Add Claude Code to your IDE](/en/docs/claude-code/ide-integrations)
 * [Terminal configuration](/en/docs/claude-code/terminal-config)
 * [Memory management](/en/docs/claude-code/memory)
-##### Reference
-* [CLI reference](/en/docs/claude-code/cli-reference)
-* [Interactive mode](/en/docs/claude-code/interactive-mode)
-* [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
-##### Resources
-* [Data usage](/en/docs/claude-code/data-usage)
-* [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
 ### [​](#themes-and-appearance) Themes and appearance
 Claude cannot control the theme of your terminal. That’s handled by your terminal application. You can match Claude Code’s theme to your terminal any time via the `/config` command.
 ### [​](#line-breaks) Line breaks
