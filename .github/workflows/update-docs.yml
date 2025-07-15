@@ -14,7 +14,7 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
     
@@ -22,13 +22,14 @@ jobs:
       run: |
         pip install requests beautifulsoup4 markdownify
     
-    - name: Scrape documentation
+    - name: Create scraper script
       run: |
-        python3 << 'EOF'
+        cat > scraper.py << 'SCRIPT'
         import requests
         from bs4 import BeautifulSoup
         import markdownify
         from datetime import datetime
+        import sys
         
         def scrape_claude_docs():
             """Scrape Claude Code documentation from Anthropic"""
@@ -41,14 +42,29 @@ jobs:
                 
                 soup = BeautifulSoup(response.text, 'html.parser')
                 
-                # Look for main content area (adjust selectors as needed)
+                # Look for main content area
                 content = soup.find('main') or soup.find('article') or soup.find('div', {'class': 'content'})
                 
                 if not content:
-                    return "Unable to locate main content. Page structure may have changed."
+                    # Try to get any reasonable content
+                    content = soup.find('body')
+                
+                if not content:
+                    return "Unable to locate content. Page structure may have changed."
                 
                 # Convert to markdown
                 markdown = markdownify.markdownify(str(content), heading_style="ATX")
+                
+                # Clean up
+                lines = markdown.split('\n')
+                cleaned_lines = []
+                for line in lines:
+                    # Skip empty lines at the start
+                    if not cleaned_lines and not line.strip():
+                        continue
+                    cleaned_lines.append(line)
+                
+                markdown = '\n'.join(cleaned_lines)
                 
                 # Add metadata
                 header = f"""# Claude Code Official Documentation
@@ -61,64 +77,85 @@ jobs:
 """
                 return header + markdown
                 
+            except requests.RequestException as e:
+                return f"Error fetching documentation: {str(e)}"
             except Exception as e:
-                return f"Error scraping documentation: {str(e)}"
+                return f"Error processing documentation: {str(e)}"
         
-        # Scrape and save
-        docs_content = scrape_claude_docs()
-        
-        with open('official/docs.md', 'w') as f:
-            f.write(docs_content)
-        
-        print("Documentation updated successfully")
-        EOF
+        if __name__ == "__main__":
+            docs_content = scrape_claude_docs()
+            
+            with open('official/docs.md', 'w', encoding='utf-8') as f:
+                f.write(docs_content)
+            
+            print("Documentation updated successfully")
+        SCRIPT
     
-    - name: Scrape subpages
+    - name: Run scraper
+      run: python scraper.py
+    
+    - name: Create subpage scraper
       run: |
-        python3 << 'EOF'
+        cat > scrape_subpages.py << 'SCRIPT'
         import requests
         from bs4 import BeautifulSoup
         import markdownify
         import os
+        import time
         
         # List of subpages to scrape
         subpages = [
+            'getting-started',
             'slash-commands',
             'mcp',
             'hooks',
-            'settings',
-            'getting-started'
+            'settings'
         ]
         
         for page in subpages:
             url = f"https://docs.anthropic.com/en/docs/claude-code/{page}"
             
             try:
+                # Be nice to the server
+                time.sleep(1)
+                
                 response = requests.get(url, timeout=30)
                 if response.status_code == 200:
                     soup = BeautifulSoup(response.text, 'html.parser')
-                    content = soup.find('main') or soup.find('article')
+                    content = soup.find('main') or soup.find('article') or soup.find('div', {'class': 'content'})
                     
                     if content:
                         markdown = markdownify.markdownify(str(content), heading_style="ATX")
                         
                         # Append to main docs
-                        with open('official/docs.md', 'a') as f:
+                        with open('official/docs.md', 'a', encoding='utf-8') as f:
                             f.write(f"\n\n---\n\n## {page.replace('-', ' ').title()}\n\n")
                             f.write(markdown)
                         
                         print(f"Added {page} to documentation")
+                    else:
+                        print(f"No content found for {page}")
+                else:
+                    print(f"Failed to fetch {page}: HTTP {response.status_code}")
             except Exception as e:
-                print(f"Failed to scrape {page}: {e}")
-        EOF
+                print(f"Error processing {page}: {e}")
+        
+        print("Subpage scraping complete")
+        SCRIPT
+    
+    - name: Run subpage scraper
+      run: python scrape_subpages.py
+      continue-on-error: true
     
     - name: Check for changes
       id: verify
       run: |
         if [[ -n $(git status --porcelain) ]]; then
           echo "changes=true" >> $GITHUB_OUTPUT
+          echo "Changes detected in documentation"
         else
           echo "changes=false" >> $GITHUB_OUTPUT
+          echo "No changes detected"
         fi
     
     - name: Commit and push
