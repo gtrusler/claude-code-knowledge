@@ -1,7 +1,7 @@
 # Claude Code Official Documentation
 
-*Last updated: 2025-07-15 17:48 UTC*
-*Scraped 28 pages from docs.anthropic.com*
+*Last updated: 2025-07-16 06:07 UTC*
+*Scraped 29 pages from docs.anthropic.com*
 
 ---
 
@@ -17,24 +17,25 @@
 8. [Github Actions](#github-actions)
 9. [Google Vertex Ai](#google-vertex-ai)
 10. [Hooks](#hooks)
-11. [Iam](#iam)
-12. [Ide Integrations](#ide-integrations)
-13. [Interactive Mode](#interactive-mode)
-14. [Legal And Compliance](#legal-and-compliance)
-15. [Llm Gateway](#llm-gateway)
-16. [Mcp](#mcp)
-17. [Memory](#memory)
-18. [Monitoring Usage](#monitoring-usage)
-19. [Overview](#overview)
-20. [Quickstart](#quickstart)
-21. [Sdk](#sdk)
-22. [Security](#security)
-23. [Settings](#settings)
-24. [Setup](#setup)
-25. [Slash Commands](#slash-commands)
-26. [Terminal Config](#terminal-config)
-27. [Third Party Integrations](#third-party-integrations)
-28. [Troubleshooting](#troubleshooting)
+11. [Hooks Guide](#hooks-guide)
+12. [Iam](#iam)
+13. [Ide Integrations](#ide-integrations)
+14. [Interactive Mode](#interactive-mode)
+15. [Legal And Compliance](#legal-and-compliance)
+16. [Llm Gateway](#llm-gateway)
+17. [Mcp](#mcp)
+18. [Memory](#memory)
+19. [Monitoring Usage](#monitoring-usage)
+20. [Overview](#overview)
+21. [Quickstart](#quickstart)
+22. [Sdk](#sdk)
+23. [Security](#security)
+24. [Settings](#settings)
+25. [Setup](#setup)
+26. [Slash Commands](#slash-commands)
+27. [Terminal Config](#terminal-config)
+28. [Third Party Integrations](#third-party-integrations)
+29. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -54,8 +55,9 @@ Claude Code on Amazon Bedrock
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -81,7 +83,7 @@ Claude Code on Amazon Bedrock
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -100,7 +102,6 @@ First, ensure you have access to the required Claude models in your AWS account:
 4. Wait for approval (usually instant for most regions)
 ### [​](#2-configure-aws-credentials) 2. Configure AWS credentials
 Claude Code uses the default AWS SDK credential chain. Set up your credentials using one of these methods:
-Claude Code does not currently support dynamic credential management (such as automatically calling `aws sts assume-role`). You will need to run `aws configure`, `aws sso login`, or set the `AWS_` environment variables yourself.
 **Option A: AWS CLI configuration**
 ```
 aws configure
@@ -121,6 +122,35 @@ export AWS_PROFILE=your-profile-name
 export AWS_BEARER_TOKEN_BEDROCK=your-bedrock-api-key
 ```
 Bedrock API keys provide a simpler authentication method without needing full AWS credentials. [Learn more about Bedrock API keys](https://aws.amazon.com/blogs/machine-learning/accelerate-ai-development-with-amazon-bedrock-api-keys/).
+#### [​](#advanced-credential-configuration) Advanced credential configuration
+Claude Code supports two configuration settings for dynamic AWS credential management:
+##### `awsAuthRefresh`
+This setting specifies a command for foreground authentication operations where output is visible to the user. It is typically used for SSO browser flows.
+Example:
+```
+{
+  "awsAuthRefresh": "aws sso login --profile myprofile"
+}
+```
+##### `awsCredentialExport`
+This setting specifies a command that outputs AWS credentials in JSON format to stdout. The output is not displayed to the user, but is used by Claude Code for subsequent Bedrock requests.
+Required output format is JSON with the following properties:
+```
+{
+  "Credentials": {
+    "AccessKeyId": "value",
+    "SecretAccessKey": "value",
+    "SessionToken": "value"
+  }
+}
+```
+Example:
+```
+{
+  "awsCredentialExport": "aws sts get-session-token --profile myprofile --output json"
+}
+```
+These settings can be used to call scripts that invoke alternative identity systems.
 ### [​](#3-configure-claude-code) 3. Configure Claude Code
 Set the following environment variables to enable Bedrock:
 ```
@@ -130,8 +160,10 @@ export AWS_REGION=us-east-1  # or your preferred region
 # Optional: Override the region for the small/fast model (Haiku)
 export ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION=us-west-2
 ```
-`AWS_REGION` is a required environment variable. Claude Code does not read from the `.aws` config file for this setting.
-When using Bedrock, the `/login` and `/logout` commands are disabled since authentication is handled through AWS credentials.
+When enabling Bedrock for Claude Code, keep the following in mind:
+* `AWS_REGION` is a required environment variable. Claude Code does not read from the `.aws` config file for this setting.
+* When using Bedrock, the `/login` and `/logout` commands are disabled since authentication is handled through AWS credentials.
+* You can use settings files for environment variables like `AWS_PROFILE` that you don’t want to leak to other processes. See [Settings](/en/docs/claude-code/settings) for more information.
 ### [​](#4-model-configuration) 4. Model configuration
 Claude Code uses these default models for Bedrock:
 | Model type | Default value |
@@ -209,8 +241,9 @@ CLI reference
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -236,7 +269,7 @@ CLI reference
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -306,8 +339,9 @@ Common workflows
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -333,7 +367,7 @@ Common workflows
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -859,8 +893,9 @@ Corporate proxy configuration
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -886,7 +921,7 @@ Corporate proxy configuration
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -951,8 +986,9 @@ Manage costs effectively
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -978,7 +1014,7 @@ Manage costs effectively
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -1046,8 +1082,9 @@ Data usage
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -1073,7 +1110,7 @@ Data usage
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -1110,7 +1147,7 @@ By default, we disable all non-essential traffic (including error reporting, tel
 All environment variables can be checked into `settings.json` ([read more](/en/docs/claude-code/settings)).
 Was this page helpful?
 YesNo
-[Hooks](/en/docs/claude-code/hooks)[Legal and compliance](/en/docs/claude-code/legal-and-compliance)
+[Hooks reference](/en/docs/claude-code/hooks)[Legal and compliance](/en/docs/claude-code/legal-and-compliance)
 On this page
 
 
@@ -1132,8 +1169,9 @@ Development containers
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -1159,15 +1197,17 @@ Development containers
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
 The preconfigured [devcontainer setup](https://code.visualstudio.com/docs/devcontainers/containers) works seamlessly with VS Code’s Remote - Containers extension and similar tools.
-The container’s enhanced security measures (isolation and firewall rules) allow you to run `claude --dangerously-skip-permissions` to bypass permission prompts for unattended operation. We’ve included a [reference implementation](https://github.com/anthropics/claude-code/tree/main/.devcontainer) that you can customize for your needs.
-While the devcontainer provides substantial protections, no system is
-completely immune to all attacks. Always maintain good security practices and
-monitor Claude’s activities.
+The container’s enhanced security measures (isolation and firewall rules) allow you to run `claude --dangerously-skip-permissions` to bypass permission prompts for unattended operation.
+We’ve included a [reference implementation](https://github.com/anthropics/claude-code/tree/main/.devcontainer) that you can customize for your needs.
+While the devcontainer provides substantial protections, no system is completely immune to all attacks.
+When executed with `--dangerously-skip-permissions`, devcontainers do not prevent a malicious project from exfiltrating anything accessible in the devcontainer including Claude Code credentials.
+We recommend only using devcontainers when developing with trusted repositories.
+Always maintain good security practices and monitor Claude’s activities.
 ## [​](#key-features) Key features
 * **Production-ready Node.js**: Built on Node.js 20 with essential development dependencies
 * **Security by design**: Custom firewall restricting network access to only necessary services
@@ -1188,6 +1228,7 @@ The devcontainer setup consists of three primary components:
 ## [​](#security-features) Security features
 The container implements a multi-layered security approach with its firewall configuration:
 * **Precise access control**: Restricts outbound connections to whitelisted domains only (npm registry, GitHub, Anthropic API, etc.)
+* **Allowed outbound connections**: The firewall permits outbound DNS and SSH connections
 * **Default-deny policy**: Blocks all other external network access
 * **Startup verification**: Validates firewall rules when the container initializes
 * **Isolation**: Creates a secure development environment separated from your main system
@@ -1225,15 +1266,16 @@ English
 Search...
 Search...
 Navigation
-Build with Claude
+Build with Claude Code
 Claude Code GitHub Actions
-[Getting Started](/en/docs/claude-code/overview)[Developer Guide](/en/docs/claude-code/sdk)[Reference](/en/docs/claude-code/cli-reference)[Resources](/en/docs/claude-code/data-usage)[Release Notes](/en/release-notes/claude-code)
-- [Home](/en/home)
-- [Developer Platform](/en/docs/intro)
-- [Claude Code](/en/docs/claude-code/overview)
-- [Model Context Protocol (MCP)](https://modelcontextprotocol.io)
+[Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
+##### Getting started
+* [Overview](/en/docs/claude-code/overview)
+* [Quickstart](/en/docs/claude-code/quickstart)
+* [Common workflows](/en/docs/claude-code/common-workflows)
 ##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -1255,6 +1297,14 @@ Claude Code GitHub Actions
 * [Add Claude Code to your IDE](/en/docs/claude-code/ide-integrations)
 * [Terminal configuration](/en/docs/claude-code/terminal-config)
 * [Memory management](/en/docs/claude-code/memory)
+##### Reference
+* [CLI reference](/en/docs/claude-code/cli-reference)
+* [Interactive mode](/en/docs/claude-code/interactive-mode)
+* [Slash commands](/en/docs/claude-code/slash-commands)
+* [Hooks reference](/en/docs/claude-code/hooks)
+##### Resources
+* [Data usage](/en/docs/claude-code/data-usage)
+* [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
 Claude Code GitHub Actions brings AI-powered automation to your GitHub workflow. With a simple `@claude` mention in any PR or issue, Claude can analyze your code, create pull requests, implement features, and fix bugs - all while following your project’s standards.
 Claude Code GitHub Actions is currently in beta. Features and functionality may evolve as we refine the experience.
 Claude Code GitHub Actions is built on top of the [Claude Code SDK](/en/docs/claude-code/sdk), which enables programmatic integration of Claude Code into your applications. You can use the SDK to build custom automation workflows beyond GitHub Actions.
@@ -1607,7 +1657,7 @@ You can configure Claude’s behavior in two ways:
 Claude will follow these guidelines when creating PRs and responding to requests.
 Was this page helpful?
 YesNo
-[Claude Code SDK](/en/docs/claude-code/sdk)[Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
+[Claude Code hooks](/en/docs/claude-code/hooks-guide)[Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 On this page
 
 
@@ -1629,8 +1679,9 @@ Claude Code on Google Vertex AI
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -1656,7 +1707,7 @@ Claude Code on Google Vertex AI
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -1753,14 +1804,15 @@ Search...
 Search...
 Navigation
 Reference
-Hooks
+Hooks reference
 [Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
 ##### Getting started
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -1786,73 +1838,11 @@ Hooks
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
-# [​](#introduction) Introduction
-Claude Code hooks are user-defined shell commands that execute at various points
-in Claude Code’s lifecycle. Hooks provide deterministic control over Claude
-Code’s behavior, ensuring certain actions always happen rather than relying on
-the LLM to choose to run them.
-Example use cases include:
-* **Notifications**: Customize how you get notified when Claude Code is awaiting
-  your input or permission to run something.
-* **Automatic formatting**: Run `prettier` on .ts files, `gofmt` on .go files,
-  etc. after every file edit.
-* **Logging**: Track and count all executed commands for compliance or
-  debugging.
-* **Feedback**: Provide automated feedback when Claude Code produces code that
-  does not follow your codebase conventions.
-* **Custom permissions**: Block modifications to production files or sensitive
-  directories.
-By encoding these rules as hooks rather than prompting instructions, you turn
-suggestions into app-level code that executes every time it is expected to run.
-Hooks execute shell commands with your full user permissions without
-confirmation. You are responsible for ensuring your hooks are safe and secure.
-Anthropic is not liable for any data loss or system damage resulting from hook
-usage. Review [Security Considerations](/_sites/docs.anthropic.com/en/docs/claude-code/hooks?ref=dailydev#security-considerations).
-## [​](#quickstart) Quickstart
-In this quickstart, you’ll add a hook that logs the shell commands that Claude
-Code runs.
-Quickstart Prerequisite: Install `jq` for JSON processing in the command line.
-### [​](#step-1%3A-open-hooks-configuration) Step 1: Open hooks configuration
-Run the `/hooks` [slash command](/en/docs/claude-code/slash-commands) and select
-the `PreToolUse` hook event.
-`PreToolUse` hooks run before tool calls and can block them while providing
-Claude feedback on what to do differently.
-### [​](#step-2%3A-add-a-matcher) Step 2: Add a matcher
-Select `+ Add new matcher…` to run your hook only on Bash tool calls.
-Type `Bash` for the matcher.
-### [​](#step-3%3A-add-the-hook) Step 3: Add the hook
-Select `+ Add new hook…` and enter this command:
-```
-jq -r '"\(.tool_input.command) - \(.tool_input.description // "No description")"' >> ~/.claude/bash-command-log.txt
-```
-### [​](#step-4%3A-save-your-configuration) Step 4: Save your configuration
-For storage location, select `User settings` since you’re logging to your home
-directory. This hook will then apply to all projects, not just your current
-project.
-Then press Esc until you return to the REPL. Your hook is now registered!
-### [​](#step-5%3A-verify-your-hook) Step 5: Verify your hook
-Run `/hooks` again or check `~/.claude/settings.json` to see your configuration:
-```
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "jq -r '\"\\(.tool_input.command) - \\(.tool_input.description // \"No description\")\"' >> ~/.claude/bash-command-log.txt"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
+For a quickstart guide with examples, see [Get started with Claude Code hooks](/en/docs/claude-code/hooks-guide).
 ## [​](#configuration) Configuration
 Claude Code hooks are configured in your
 [settings files](/en/docs/claude-code/settings):
@@ -1910,8 +1900,7 @@ Runs when Claude Code sends notifications. Notifications are sent when:
 1. Claude needs your permission to use a tool. Example: “Claude needs your permission to use Bash”
 2. The prompt input has been idle for at least 60 seconds. “Claude is waiting for your input”
 ### [​](#stop) Stop
-Runs when the main Claude Code agent has finished responding. Does not run if
-the stoppage occurred due to a user interrupt.
+Runs when the main Claude Code agent has finished responding. Does not run if the stoppage occurred due to a user interrupt.
 ### [​](#subagentstop) SubagentStop
 Runs when a Claude Code subagent (Task tool call) has finished responding.
 ### [​](#precompact) PreCompact
@@ -2154,45 +2143,7 @@ You can target specific MCP tools or entire MCP servers:
 }
 ```
 ## [​](#examples) Examples
-### [​](#code-formatting) Code Formatting
-Automatically format code after file modifications:
-```
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/home/user/scripts/format-code.sh"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-### [​](#notification-2) Notification
-Customize the notification that is sent when Claude Code requests permission or
-when the prompt input has become idle.
-```
-{
-  "hooks": {
-    "Notification": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/my_custom_notifier.py"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
+For practical examples including code formatting, notifications, and file protection, see [More Examples](/en/docs/claude-code/hooks-guide#more-examples) in the get started guide.
 ## [​](#security-considerations) Security Considerations
 ### [​](#disclaimer) Disclaimer
 **USE AT YOUR OWN RISK**: Claude Code hooks execute arbitrary shell commands on
@@ -2230,16 +2181,27 @@ This prevents malicious hook modifications from affecting your current session.
   + PreToolUse/PostToolUse/Stop: Progress shown in transcript (Ctrl-R)
   + Notification: Logged to debug only (`--debug`)
 ## [​](#debugging) Debugging
-To troubleshoot hooks:
-1. Check if `/hooks` menu displays your configuration
-2. Verify that your [settings files](/en/docs/claude-code/settings) are valid
-   JSON
-3. Test commands manually
-4. Check exit codes
-5. Review stdout and stderr format expectations
-6. Ensure proper quote escaping
-7. Use `claude --debug` to debug your hooks. The output of a successful hook
-   appears like below.
+### [​](#basic-troubleshooting) Basic Troubleshooting
+If your hooks aren’t working:
+1. **Check configuration** - Run `/hooks` to see if your hook is registered
+2. **Verify syntax** - Ensure your JSON settings are valid
+3. **Test commands** - Run hook commands manually first
+4. **Check permissions** - Make sure scripts are executable
+5. **Review logs** - Use `claude --debug` to see hook execution details
+Common issues:
+* **Quotes not escaped** - Use `\"` inside JSON strings
+* **Wrong matcher** - Check tool names match exactly (case-sensitive)
+* **Command not found** - Use full paths for scripts
+### [​](#advanced-debugging) Advanced Debugging
+For complex hook issues:
+1. **Inspect hook execution** - Use `claude --debug` to see detailed hook execution
+2. **Validate JSON schemas** - Test hook input/output with external tools
+3. **Check environment variables** - Verify Claude Code’s environment is correct
+4. **Test edge cases** - Try hooks with unusual file paths or inputs
+5. **Monitor system resources** - Check for resource exhaustion during hook execution
+6. **Use structured logging** - Implement logging in your hook scripts
+### [​](#debug-output-example) Debug Output Example
+Use `claude --debug` to see hook execution details:
 ```
 [DEBUG] Executing hooks for PostToolUse:Write
 [DEBUG] Getting matching hook commands for PostToolUse with query: Write
@@ -2262,24 +2224,25 @@ On this page
 
 ---
 
-## Iam
+## Hooks Guide
 
-*Source: https://docs.anthropic.com/en/docs/claude-code/iam*
+*Source: https://docs.anthropic.com/en/docs/claude-code/hooks-guide*
 
 [Anthropic home page](/)
 English
 Search...
 Search...
 Navigation
-Administration
-Identity and Access Management
+Build with Claude Code
+Get started with Claude Code hooks
 [Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
 ##### Getting started
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -2305,7 +2268,207 @@ Identity and Access Management
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
+##### Resources
+* [Data usage](/en/docs/claude-code/data-usage)
+* [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
+Claude Code hooks are user-defined shell commands that execute at various points
+in Claude Code’s lifecycle. Hooks provide deterministic control over Claude
+Code’s behavior, ensuring certain actions always happen rather than relying on
+the LLM to choose to run them.
+For reference documentation on hooks, see [Hooks reference](/en/docs/claude-code/hooks).
+Example use cases for hooks include:
+* **Notifications**: Customize how you get notified when Claude Code is awaiting
+  your input or permission to run something.
+* **Automatic formatting**: Run `prettier` on .ts files, `gofmt` on .go files,
+  etc. after every file edit.
+* **Logging**: Track and count all executed commands for compliance or
+  debugging.
+* **Feedback**: Provide automated feedback when Claude Code produces code that
+  does not follow your codebase conventions.
+* **Custom permissions**: Block modifications to production files or sensitive
+  directories.
+By encoding these rules as hooks rather than prompting instructions, you turn
+suggestions into app-level code that executes every time it is expected to run.
+You must consider the security implication of hooks as you add them, because hooks run automatically during the agent loop with your current environment’s credentials.
+For example, malicious hooks code can exfiltrate your data. Always review your hooks implementation before registering them.
+For full security best practices, see [Security Considerations](/en/docs/claude-code/hooks#security-considerations) in the hooks reference documentation.
+## [​](#hook-events-overview) Hook Events Overview
+Claude Code provides several hook events that run at different points in the workflow:
+* **PreToolUse**: Runs before tool calls (can block them)
+* **PostToolUse**: Runs after tool calls complete
+* **Notification**: Runs when Claude Code sends notifications
+* **Stop**: Runs when Claude Code finishes responding
+* **SubagentStop**: Runs when subagent tasks complete
+Each event receives different data and can control Claude’s behavior in different ways.
+## [​](#quickstart) Quickstart
+In this quickstart, you’ll add a hook that logs the shell commands that Claude
+Code runs.
+### [​](#prerequisites) Prerequisites
+Install `jq` for JSON processing in the command line.
+### [​](#step-1%3A-open-hooks-configuration) Step 1: Open hooks configuration
+Run the `/hooks` [slash command](/en/docs/claude-code/slash-commands) and select
+the `PreToolUse` hook event.
+`PreToolUse` hooks run before tool calls and can block them while providing
+Claude feedback on what to do differently.
+### [​](#step-2%3A-add-a-matcher) Step 2: Add a matcher
+Select `+ Add new matcher…` to run your hook only on Bash tool calls.
+Type `Bash` for the matcher.
+Use an empty string `""` to match all tools. The `*` character is not a valid matcher on its own.
+### [​](#step-3%3A-add-the-hook) Step 3: Add the hook
+Select `+ Add new hook…` and enter this command:
+```
+jq -r '"\(.tool_input.command) - \(.tool_input.description // "No description")"' >> ~/.claude/bash-command-log.txt
+```
+### [​](#step-4%3A-save-your-configuration) Step 4: Save your configuration
+For storage location, select `User settings` since you’re logging to your home
+directory. This hook will then apply to all projects, not just your current
+project.
+Then press Esc until you return to the REPL. Your hook is now registered!
+### [​](#step-5%3A-verify-your-hook) Step 5: Verify your hook
+Run `/hooks` again or check `~/.claude/settings.json` to see your configuration:
+```
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '\"\\(.tool_input.command) - \\(.tool_input.description // \"No description\")\"' >> ~/.claude/bash-command-log.txt"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+### [​](#step-6%3A-test-your-hook) Step 6: Test your hook
+Ask Claude to run a simple command like `ls` and check your log file:
+```
+cat ~/.claude/bash-command-log.txt
+```
+You should see entries like:
+```
+ls - Lists files and directories
+```
+## [​](#more-examples) More Examples
+For a complete example implementation, see the [bash command validator example](https://github.com/anthropics/claude-code/blob/main/examples/hooks/bash_command_validator_example.py) in our public codebase.
+### [​](#code-formatting-hook) Code Formatting Hook
+Automatically format TypeScript files after editing:
+```
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo '$(.tool_input.file_path)' | grep -q '\\.ts$'; then npx prettier --write '$(.tool_input.file_path)'; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+### [​](#custom-notification-hook) Custom Notification Hook
+Get desktop notifications when Claude needs input:
+```
+{
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "notify-send 'Claude Code' 'Awaiting your input'"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+### [​](#file-protection-hook) File Protection Hook
+Block edits to sensitive files:
+```
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import json, sys; data=json.load(sys.stdin); path=data.get('tool_input',{}).get('file_path',''); sys.exit(2 if any(p in path for p in ['.env', 'package-lock.json', '.git/']) else 0)\""
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+## [​](#learn-more) Learn more
+* For reference documentation on hooks, see [Hooks reference](/en/docs/claude-code/hooks).
+* For comprehensive security best practices and safety guidelines, see [Security Considerations](/en/docs/claude-code/hooks#security-considerations) in the hooks reference documentation.
+* For troubleshooting steps and debugging techniques, see [Debugging](/en/docs/claude-code/hooks#debugging) in the hooks reference documentation.
+Was this page helpful?
+YesNo
+[Claude Code SDK](/en/docs/claude-code/sdk)[GitHub Actions](/en/docs/claude-code/github-actions)
+On this page
+
+
+---
+
+## Iam
+
+*Source: https://docs.anthropic.com/en/docs/claude-code/iam*
+
+[Anthropic home page](/)
+English
+Search...
+Search...
+Navigation
+Administration
+Identity and Access Management
+[Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
+##### Getting started
+* [Overview](/en/docs/claude-code/overview)
+* [Quickstart](/en/docs/claude-code/quickstart)
+* [Common workflows](/en/docs/claude-code/common-workflows)
+##### Build with Claude Code
+* [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
+* [GitHub Actions](/en/docs/claude-code/github-actions)
+* [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
+* [Troubleshooting](/en/docs/claude-code/troubleshooting)
+##### Deployment
+* [Overview](/en/docs/claude-code/third-party-integrations)
+* [Amazon Bedrock](/en/docs/claude-code/amazon-bedrock)
+* [Google Vertex AI](/en/docs/claude-code/google-vertex-ai)
+* [Corporate proxy](/en/docs/claude-code/corporate-proxy)
+* [LLM gateway](/en/docs/claude-code/llm-gateway)
+* [Development containers](/en/docs/claude-code/devcontainer)
+##### Administration
+* [Advanced installation](/en/docs/claude-code/setup)
+* [Identity and Access Management](/en/docs/claude-code/iam)
+* [Security](/en/docs/claude-code/security)
+* [Monitoring](/en/docs/claude-code/monitoring-usage)
+* [Costs](/en/docs/claude-code/costs)
+##### Configuration
+* [Settings](/en/docs/claude-code/settings)
+* [Add Claude Code to your IDE](/en/docs/claude-code/ide-integrations)
+* [Terminal configuration](/en/docs/claude-code/terminal-config)
+* [Memory management](/en/docs/claude-code/memory)
+##### Reference
+* [CLI reference](/en/docs/claude-code/cli-reference)
+* [Interactive mode](/en/docs/claude-code/interactive-mode)
+* [Slash commands](/en/docs/claude-code/slash-commands)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -2397,7 +2560,7 @@ When multiple settings sources exist, they are applied in the following order (h
 5. User settings (`~/.claude/settings.json`)
 This hierarchy ensures that organizational policies are always enforced while still allowing flexibility at the project and user levels where appropriate.
 ### [​](#additional-permission-control-with-hooks) Additional permission control with hooks
-[Claude Code hooks](/en/docs/claude-code/hooks) provide a way to register custom shell commands to perform permission evaluation at runtime. When Claude Code makes a tool call, PreToolUse hooks run before the permission system runs, and the hook output can determine whether to approve or deny the tool call in place of the permission system.
+[Claude Code hooks](/en/docs/claude-code/hooks-guide) provide a way to register custom shell commands to perform permission evaluation at runtime. When Claude Code makes a tool call, PreToolUse hooks run before the permission system runs, and the hook output can determine whether to approve or deny the tool call in place of the permission system.
 ## [​](#credential-management) Credential management
 Claude Code supports authentication via Claude.ai credentials, Anthropic API credentials, Bedrock Auth, and Vertex Auth. On macOS, the API keys, OAuth tokens, and other credentials are stored on encrypted macOS Keychain. Alternately, the setting [apiKeyHelper](/en/docs/claude-code/settings#available-settings) can be set to a shell script which returns an API key. By default, this helper is called after 5 minutes or on HTTP 401 response; specifying environment variable `CLAUDE_CODE_API_KEY_HELPER_TTL_MS` defines a custom refresh interval.
 Was this page helpful?
@@ -2419,13 +2582,14 @@ Search...
 Navigation
 Configuration
 Add Claude Code to your IDE
-[Getting Started](/en/docs/claude-code/overview)[Developer Guide](/en/docs/claude-code/sdk)[Reference](/en/docs/claude-code/cli-reference)[Resources](/en/docs/claude-code/data-usage)[Release Notes](/en/release-notes/claude-code)
-- [Home](/en/home)
-- [Developer Platform](/en/docs/intro)
-- [Claude Code](/en/docs/claude-code/overview)
-- [Model Context Protocol (MCP)](https://modelcontextprotocol.io)
+[Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
+##### Getting started
+* [Overview](/en/docs/claude-code/overview)
+* [Quickstart](/en/docs/claude-code/quickstart)
+* [Common workflows](/en/docs/claude-code/common-workflows)
 ##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -2447,6 +2611,14 @@ Add Claude Code to your IDE
 * [Add Claude Code to your IDE](/en/docs/claude-code/ide-integrations)
 * [Terminal configuration](/en/docs/claude-code/terminal-config)
 * [Memory management](/en/docs/claude-code/memory)
+##### Reference
+* [CLI reference](/en/docs/claude-code/cli-reference)
+* [Interactive mode](/en/docs/claude-code/interactive-mode)
+* [Slash commands](/en/docs/claude-code/slash-commands)
+* [Hooks reference](/en/docs/claude-code/hooks)
+##### Resources
+* [Data usage](/en/docs/claude-code/data-usage)
+* [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
 Claude Code works great with any Integrated Development Environment (IDE) that has a terminal. Just run `claude`, and you’re ready to go.
 In addition, Claude Code provides dedicated integrations for popular IDEs, which provide features like interactive diff viewing, selection context sharing, and more. These integrations currently exist for:
 * **Visual Studio Code** (including popular forks like Cursor, Windsurf, and VSCodium)
@@ -2532,8 +2704,9 @@ Interactive mode
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -2559,7 +2732,7 @@ Interactive mode
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -2656,8 +2829,9 @@ Legal and compliance
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -2683,7 +2857,7 @@ Legal and compliance
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -2725,8 +2899,9 @@ LLM gateway configuration
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -2752,7 +2927,7 @@ LLM gateway configuration
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -2883,15 +3058,16 @@ English
 Search...
 Search...
 Navigation
-Build with Claude
+Build with Claude Code
 Model Context Protocol (MCP)
 [Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
 ##### Getting started
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -2917,7 +3093,7 @@ Model Context Protocol (MCP)
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -3236,8 +3412,9 @@ Manage Claude's memory
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -3263,7 +3440,7 @@ Manage Claude's memory
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -3343,8 +3520,9 @@ Monitoring
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -3370,7 +3548,7 @@ Monitoring
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -3445,6 +3623,25 @@ The following environment variables control which attributes are included in met
 | `OTEL_METRICS_INCLUDE_VERSION` | Include app.version attribute in metrics | `false` | `true` |
 | `OTEL_METRICS_INCLUDE_ACCOUNT_UUID` | Include user.account\_uuid attribute in metrics | `true` | `false` |
 These variables help control the cardinality of metrics, which affects storage requirements and query performance in your metrics backend. Lower cardinality generally means better performance and lower storage costs but less granular data for analysis.
+### [​](#dynamic-headers) Dynamic Headers
+For enterprise environments that require dynamic authentication, you can configure a script to generate headers dynamically:
+#### [​](#settings-configuration) Settings Configuration
+Add to your `.claude/settings.json`:
+```
+{
+  "otelHeadersHelper": "/bin/generate_opentelemetry_headers.sh"
+}
+```
+#### [​](#script-requirements) Script Requirements
+The script must output valid JSON with string key-value pairs representing HTTP headers:
+```
+#!/bin/bash
+# Example: Multiple headers
+echo "{\"Authorization\": \"Bearer $(get-token.sh)\", \"X-API-Key\": \"$(get-api-key.sh)\"}"
+```
+#### [​](#important-limitations) Important Limitations
+**Headers are fetched only at startup, not during runtime.** This is due to OpenTelemetry exporter architecture limitations.
+For scenarios requiring frequent token refresh, use an OpenTelemetry Collector as a proxy that can refresh its own headers.
 ### [​](#multi-team-organization-support) Multi-Team Organization Support
 Organizations with multiple teams or departments can add custom attributes to distinguish between different groups using the `OTEL_RESOURCE_ATTRIBUTES` environment variable:
 ```
@@ -3514,6 +3711,7 @@ Claude Code exports the following metrics:
 | `claude_code.cost.usage` | Cost of the Claude Code session | USD |
 | `claude_code.token.usage` | Number of tokens used | tokens |
 | `claude_code.code_edit_tool.decision` | Count of code editing tool permission decisions | count |
+| `claude_code.active_time.total` | Total active time in seconds | s |
 ### [​](#metric-details) Metric Details
 #### [​](#session-counter) Session Counter
 Incremented at the start of each session.
@@ -3550,6 +3748,10 @@ Incremented when user accepts or rejects Edit, MultiEdit, Write, or NotebookEdit
 * `tool`: Tool name (`"Edit"`, `"MultiEdit"`, `"Write"`, `"NotebookEdit"`)
 * `decision`: User decision (`"accept"`, `"reject"`)
 * `language`: Programming language of the edited file (e.g., `"TypeScript"`, `"Python"`, `"JavaScript"`, `"Markdown"`). Returns `"unknown"` for unrecognized file extensions.
+#### [​](#active-time-counter) Active Time Counter
+Tracks actual time spent actively using Claude Code (not idle time). This metric is incremented during user interactions such as typing prompts or receiving responses.
+**Attributes**:
+* All [standard attributes](/_sites/docs.anthropic.com/en/docs/claude-code/monitoring-usage#standard-attributes)
 ### [​](#events) Events
 Claude Code exports the following events via OpenTelemetry logs/events (when `OTEL_LOGS_EXPORTER` is configured):
 #### [​](#user-prompt-event) User Prompt Event
@@ -3568,10 +3770,14 @@ Logged when a tool completes execution.
 * All [standard attributes](/_sites/docs.anthropic.com/en/docs/claude-code/monitoring-usage#standard-attributes)
 * `event.name`: `"tool_result"`
 * `event.timestamp`: ISO 8601 timestamp
-* `name`: Name of the tool
+* `tool_name`: Name of the tool
 * `success`: `"true"` or `"false"`
 * `duration_ms`: Execution time in milliseconds
 * `error`: Error message (if failed)
+* `decision`: Either `"accept"` or `"reject"`
+* `source`: Decision source - `"config"`, `"user_permanent"`, `"user_temporary"`, `"user_abort"`, or `"user_reject"`
+* `tool_parameters`: JSON string containing tool-specific parameters (when available)
+  + For Bash tool: includes `bash_command`, `full_command`, `timeout`, `description`, `sandbox`
 #### [​](#api-request-event) API Request Event
 Logged for each API request to Claude.
 **Event Name**: `claude_code.api_request`
@@ -3684,8 +3890,9 @@ Claude Code overview
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -3711,7 +3918,7 @@ Claude Code overview
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -3775,8 +3982,9 @@ Quickstart
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -3802,7 +4010,7 @@ Quickstart
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -3976,15 +4184,16 @@ English
 Search...
 Search...
 Navigation
-Build with Claude
+Build with Claude Code
 Claude Code SDK
 [Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
 ##### Getting started
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -4010,7 +4219,7 @@ Claude Code SDK
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -4433,7 +4642,7 @@ The Claude Code SDK enables powerful integrations with your development workflow
 * [Common workflows](/en/docs/claude-code/common-workflows) - Step-by-step guides for common use cases
 Was this page helpful?
 YesNo
-[Common workflows](/en/docs/claude-code/common-workflows)[GitHub Actions](/en/docs/claude-code/github-actions)
+[Common workflows](/en/docs/claude-code/common-workflows)[Claude Code hooks](/en/docs/claude-code/hooks-guide)
 On this page
 
 
@@ -4450,13 +4659,14 @@ Search...
 Navigation
 Administration
 Security
-[Getting Started](/en/docs/claude-code/overview)[Developer Guide](/en/docs/claude-code/sdk)[Reference](/en/docs/claude-code/cli-reference)[Resources](/en/docs/claude-code/data-usage)[Release Notes](/en/release-notes/claude-code)
-- [Home](/en/home)
-- [Developer Platform](/en/docs/intro)
-- [Claude Code](/en/docs/claude-code/overview)
-- [Model Context Protocol (MCP)](https://modelcontextprotocol.io)
+[Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
+##### Getting started
+* [Overview](/en/docs/claude-code/overview)
+* [Quickstart](/en/docs/claude-code/quickstart)
+* [Common workflows](/en/docs/claude-code/common-workflows)
 ##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -4478,6 +4688,14 @@ Security
 * [Add Claude Code to your IDE](/en/docs/claude-code/ide-integrations)
 * [Terminal configuration](/en/docs/claude-code/terminal-config)
 * [Memory management](/en/docs/claude-code/memory)
+##### Reference
+* [CLI reference](/en/docs/claude-code/cli-reference)
+* [Interactive mode](/en/docs/claude-code/interactive-mode)
+* [Slash commands](/en/docs/claude-code/slash-commands)
+* [Hooks reference](/en/docs/claude-code/hooks)
+##### Resources
+* [Data usage](/en/docs/claude-code/data-usage)
+* [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
 ## [​](#how-we-approach-security) How we approach security
 ### [​](#security-foundation) Security foundation
 Your code’s security is paramount. Claude Code is built with security at its core, developed according to Anthropic’s comprehensive security program. Learn more and access resources (SOC 2 Type 2 report, ISO 27001 certificate, etc.) at [Anthropic Trust Center](https://trust.anthropic.com).
@@ -4559,13 +4777,14 @@ Search...
 Navigation
 Configuration
 Claude Code settings
-[Getting Started](/en/docs/claude-code/overview)[Developer Guide](/en/docs/claude-code/sdk)[Reference](/en/docs/claude-code/cli-reference)[Resources](/en/docs/claude-code/data-usage)[Release Notes](/en/release-notes/claude-code)
-- [Home](/en/home)
-- [Developer Platform](/en/docs/intro)
-- [Claude Code](/en/docs/claude-code/overview)
-- [Model Context Protocol (MCP)](https://modelcontextprotocol.io)
+[Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
+##### Getting started
+* [Overview](/en/docs/claude-code/overview)
+* [Quickstart](/en/docs/claude-code/quickstart)
+* [Common workflows](/en/docs/claude-code/common-workflows)
 ##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -4587,6 +4806,14 @@ Claude Code settings
 * [Add Claude Code to your IDE](/en/docs/claude-code/ide-integrations)
 * [Terminal configuration](/en/docs/claude-code/terminal-config)
 * [Memory management](/en/docs/claude-code/memory)
+##### Reference
+* [CLI reference](/en/docs/claude-code/cli-reference)
+* [Interactive mode](/en/docs/claude-code/interactive-mode)
+* [Slash commands](/en/docs/claude-code/slash-commands)
+* [Hooks reference](/en/docs/claude-code/hooks)
+##### Resources
+* [Data usage](/en/docs/claude-code/data-usage)
+* [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
 Claude Code offers a variety of settings to configure its behavior to meet your needs. You can configure Claude Code by running the `/config` command when using the interactive REPL.
 ## [​](#settings-files) Settings files
 The `settings.json` file is our official mechanism for configuring Claude
@@ -4598,9 +4825,10 @@ Code through hierarchical settings:
   + `.claude/settings.local.json` for settings that are not checked in, useful for personal preferences and experimentation. Claude Code will configure git to ignore `.claude/settings.local.json` when it is created.
 * For enterprise deployments of Claude Code, we also support **enterprise
   managed policy settings**. These take precedence over user and project
-  settings. System administrators can deploy policies to
-  `/Library/Application Support/ClaudeCode/managed-settings.json` on macOS and
-  `/etc/claude-code/managed-settings.json` on Linux and Windows via WSL.
+  settings. System administrators can deploy policies to:
+  + macOS: `/Library/Application Support/ClaudeCode/managed-settings.json`
+  + Linux and WSL: `/etc/claude-code/managed-settings.json`
+  + Windows: `C:\ProgramData\ClaudeCode\managed-settings.json`
 Example settings.json
 ```
 {
@@ -4674,6 +4902,7 @@ All environment variables can also be configured in [`settings.json`](/_sites/do
 | `CLAUDE_CODE_SKIP_BEDROCK_AUTH` | Skip AWS authentication for Bedrock (e.g. when using an LLM gateway) |
 | `CLAUDE_CODE_SKIP_VERTEX_AUTH` | Skip Google authentication for Vertex (e.g. when using an LLM gateway) |
 | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | Equivalent of setting `DISABLE_AUTOUPDATER`, `DISABLE_BUG_COMMAND`, `DISABLE_ERROR_REPORTING`, and `DISABLE_TELEMETRY` |
+| `CLAUDE_CODE_DISABLE_TERMINAL_TITLE` | Set to `1` to disable automatic terminal title updates based on conversation context |
 | `DISABLE_AUTOUPDATER` | Set to `1` to disable automatic updates. This takes precedence over the `autoUpdates` configuration setting. |
 | `DISABLE_BUG_COMMAND` | Set to `1` to disable the `/bug` command |
 | `DISABLE_COST_WARNINGS` | Set to `1` to disable cost warning messages |
@@ -4730,7 +4959,7 @@ Claude Code has access to a set of powerful tools that help it understand and mo
 Permission rules can be configured using `/allowed-tools` or in [permission settings](/en/docs/claude-code/settings#available-settings).
 ### [​](#extending-tools-with-hooks) Extending tools with hooks
 You can run custom commands before or after any tool executes using
-[Claude Code hooks](/en/docs/claude-code/hooks).
+[Claude Code hooks](/en/docs/claude-code/hooks-guide).
 For example, you could automatically run a Python formatter after Claude
 modifies Python files, or prevent modifications to production configuration
 files by blocking Write operations to certain paths.
@@ -4757,13 +4986,14 @@ Search...
 Navigation
 Administration
 Set up Claude Code
-[Getting Started](/en/docs/claude-code/overview)[Developer Guide](/en/docs/claude-code/sdk)[Reference](/en/docs/claude-code/cli-reference)[Resources](/en/docs/claude-code/data-usage)[Release Notes](/en/release-notes/claude-code)
-- [Home](/en/home)
-- [Developer Platform](/en/docs/intro)
-- [Claude Code](/en/docs/claude-code/overview)
-- [Model Context Protocol (MCP)](https://modelcontextprotocol.io)
+[Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
+##### Getting started
+* [Overview](/en/docs/claude-code/overview)
+* [Quickstart](/en/docs/claude-code/quickstart)
+* [Common workflows](/en/docs/claude-code/common-workflows)
 ##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -4785,8 +5015,16 @@ Set up Claude Code
 * [Add Claude Code to your IDE](/en/docs/claude-code/ide-integrations)
 * [Terminal configuration](/en/docs/claude-code/terminal-config)
 * [Memory management](/en/docs/claude-code/memory)
+##### Reference
+* [CLI reference](/en/docs/claude-code/cli-reference)
+* [Interactive mode](/en/docs/claude-code/interactive-mode)
+* [Slash commands](/en/docs/claude-code/slash-commands)
+* [Hooks reference](/en/docs/claude-code/hooks)
+##### Resources
+* [Data usage](/en/docs/claude-code/data-usage)
+* [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
 ## [​](#system-requirements) System requirements
-* **Operating Systems**: macOS 10.15+, Ubuntu 20.04+/Debian 10+, or Windows via WSL
+* **Operating Systems**: macOS 10.15+, Ubuntu 20.04+/Debian 10+, or Windows 10+ (with WSL 1, WSL 2, or Git for Windows)
 * **Hardware**: 4GB+ RAM
 * **Software**: [Node.js 18+](https://nodejs.org/en/download)
 * **Network**: Internet connection required for authentication and AI processing
@@ -4810,6 +5048,15 @@ Claude Code offers the following authentication options:
 1. **Anthropic Console**: The default option. Connect through the Anthropic Console and complete the OAuth process. Requires active billing at [console.anthropic.com](https://console.anthropic.com).
 2. **Claude App (with Pro or Max plan)**: Subscribe to Claude’s [Pro or Max plan](https://www.anthropic.com/pricing) for a unified subscription that includes both Claude Code and the web interface. Get more value at the same price point while managing your account in one place. Log in with your Claude.ai account. During launch, choose the option that matches your subscription type.
 3. **Enterprise platforms**: Configure Claude Code to use [Amazon Bedrock or Google Vertex AI](/en/docs/claude-code/third-party-integrations) for enterprise deployments with your existing cloud infrastructure.
+## [​](#windows-setup) Windows setup
+**Option 1: Claude Code within WSL**
+* Both WSL 1 and WSL 2 are supported
+**Option 2: Claude Code on native Windows with Git Bash**
+* Requires [Git for Windows](https://git-scm.com/downloads/win)
+* For portable Git installations, specify the path to your `bash.exe`:
+  ```
+  $env:CLAUDE_CODE_GIT_BASH_PATH="C:\Program Files\Git\bin\bash.exe"
+  ```
 ## [​](#alternative-installation-methods) Alternative installation methods
 Claude Code offers multiple installation methods to suit different environments.
 If you encounter any issues during installation, consult the [troubleshooting guide](/en/docs/claude-code/troubleshooting#linux-permission-issues).
@@ -4870,8 +5117,9 @@ Slash commands
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -4897,7 +5145,7 @@ Slash commands
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -5047,7 +5295,7 @@ Use the `/mcp` command to:
 * [Memory management](/en/docs/claude-code/memory) - Managing Claude’s memory across sessions
 Was this page helpful?
 YesNo
-[Interactive mode](/en/docs/claude-code/interactive-mode)[Hooks](/en/docs/claude-code/hooks)
+[Interactive mode](/en/docs/claude-code/interactive-mode)[Hooks reference](/en/docs/claude-code/hooks)
 On this page
 
 
@@ -5064,13 +5312,14 @@ Search...
 Navigation
 Configuration
 Optimize your terminal setup
-[Getting Started](/en/docs/claude-code/overview)[Developer Guide](/en/docs/claude-code/sdk)[Reference](/en/docs/claude-code/cli-reference)[Resources](/en/docs/claude-code/data-usage)[Release Notes](/en/release-notes/claude-code)
-- [Home](/en/home)
-- [Developer Platform](/en/docs/intro)
-- [Claude Code](/en/docs/claude-code/overview)
-- [Model Context Protocol (MCP)](https://modelcontextprotocol.io)
+[Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
+##### Getting started
+* [Overview](/en/docs/claude-code/overview)
+* [Quickstart](/en/docs/claude-code/quickstart)
+* [Common workflows](/en/docs/claude-code/common-workflows)
 ##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -5092,6 +5341,14 @@ Optimize your terminal setup
 * [Add Claude Code to your IDE](/en/docs/claude-code/ide-integrations)
 * [Terminal configuration](/en/docs/claude-code/terminal-config)
 * [Memory management](/en/docs/claude-code/memory)
+##### Reference
+* [CLI reference](/en/docs/claude-code/cli-reference)
+* [Interactive mode](/en/docs/claude-code/interactive-mode)
+* [Slash commands](/en/docs/claude-code/slash-commands)
+* [Hooks reference](/en/docs/claude-code/hooks)
+##### Resources
+* [Data usage](/en/docs/claude-code/data-usage)
+* [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
 ### [​](#themes-and-appearance) Themes and appearance
 Claude cannot control the theme of your terminal. That’s handled by your terminal application. You can match Claude Code’s theme to your terminal any time via the `/config` command.
 ### [​](#line-breaks) Line breaks
@@ -5159,8 +5416,9 @@ Enterprise deployment overview
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -5186,7 +5444,7 @@ Enterprise deployment overview
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
@@ -5304,15 +5562,16 @@ English
 Search...
 Search...
 Navigation
-Build with Claude
+Build with Claude Code
 Troubleshooting
 [Welcome](/en/home)[Developer Platform](/en/docs/intro)[Claude Code](/en/docs/claude-code/overview)[Model Context Protocol (MCP)](/en/docs/mcp)[API Reference](/en/api/messages)[Resources](/en/resources/overview)[Release Notes](/en/release-notes/overview)
 ##### Getting started
 * [Overview](/en/docs/claude-code/overview)
 * [Quickstart](/en/docs/claude-code/quickstart)
 * [Common workflows](/en/docs/claude-code/common-workflows)
-##### Build with Claude
+##### Build with Claude Code
 * [Claude Code SDK](/en/docs/claude-code/sdk)
+* [Claude Code hooks](/en/docs/claude-code/hooks-guide)
 * [GitHub Actions](/en/docs/claude-code/github-actions)
 * [Model Context Protocol (MCP)](/en/docs/claude-code/mcp)
 * [Troubleshooting](/en/docs/claude-code/troubleshooting)
@@ -5338,7 +5597,7 @@ Troubleshooting
 * [CLI reference](/en/docs/claude-code/cli-reference)
 * [Interactive mode](/en/docs/claude-code/interactive-mode)
 * [Slash commands](/en/docs/claude-code/slash-commands)
-* [Hooks](/en/docs/claude-code/hooks)
+* [Hooks reference](/en/docs/claude-code/hooks)
 ##### Resources
 * [Data usage](/en/docs/claude-code/data-usage)
 * [Legal and compliance](/en/docs/claude-code/legal-and-compliance)
