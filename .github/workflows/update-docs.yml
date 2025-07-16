@@ -29,7 +29,228 @@ jobs:
       run: |
         pip install requests beautifulsoup4 markdownify
     
-    - name: Scrape documentation
+    - name: Create comprehensive scraper
+      run: |
+        cat > scraper.py << 'SCRIPT'
+        import requests
+        from bs4 import BeautifulSoup
+        import markdownify
+        from datetime import datetime
+        import sys
+        import re
+        import time
+        
+        def extract_page_links(soup, base_url):
+            """Extract all Claude Code documentation links from a page"""
+            links = set()
+            
+            # Look for navigation links, sidebar links, and content links
+            for a in soup.find_all('a', href=True):
+                href = a['href']
+                # Look for internal docs links
+                if '/en/docs/claude-code' in href:
+                    # Clean up the URL
+                    if href.startswith('/'):
+                        href = f"https://docs.anthropic.com{href}"
+                    elif not href.startswith('http'):
+                        href = f"{base_url}/{href}"
+                    
+                    # Remove anchors and query strings
+                    href = href.split('#')[0].split('?')[0]
+                    
+                    # Only keep claude-code pages
+                    if 'claude-code' in href and href.startswith('https://docs.anthropic.com'):
+                        links.add(href)
+            
+            return links
+        
+        def scrape_page(url):
+            """Scrape a single documentation page"""
+            try:
+                response = requests.get(url, timeout=30)
+                response.raise_for_status()
+                
+                soup = BeautifulSoup(response.text, 'html.parser')
+                
+                # Look for main content area
+                content = soup.find('main') or soup.find('article') or soup.find('div', {'class': 'content'})
+                
+                if not content:
+                    content = soup.find('body')
+                
+                if not content:
+                    return None, set()
+                
+                # Extract links before converting to markdown
+                links = extract_page_links(soup, url)
+                
+                # Convert to markdown
+                markdown = markdownify.markdownify(str(content), heading_style="ATX")
+                
+                # Clean up
+                lines = markdown.split('\n')
+                cleaned_lines = []
+                for line in lines:
+                    if not cleaned_lines and not line.strip():
+                        continue
+                    cleaned_lines.append(line)
+                
+                markdown = '\n'.join(cleaned_lines)
+                
+                return markdown, links
+                
+            except requests.RequestException as e:
+                print(f"Error fetching {url}: {str(e)}")
+                return None, set()
+            except Exception as e:
+                print(f"Error processing {url}: {str(e)}")
+                return None, set()
+        
+        def scrape_claude_docs():
+            """Scrape all Claude Code documentation pages"""
+            base_url = "https://docs.anthropic.com/en/docs/claude-code"
+            
+            # Track visited URLs to avoid duplicates
+            visited = set()
+            to_visit = {base_url}
+            all_content = {}
+            
+            # Known pages to ensure we get them
+            known_pages = [
+                'overview', 'getting-started', 'quickstart', 'cli-reference',
+                'slash-commands', 'interactive-mode', 'settings', 'memory',
+                'hooks', 'mcp', 'sdk', 'github-actions',
+                'amazon-bedrock', 'google-vertex-ai', 'bedrock-vertex',
+                'third-party-integrations', 'troubleshooting',
+                'common-tasks', 'tutorials', 'data-usage', 'costs'
+            ]
+            
+            # Add known pages to visit list
+            for page in known_pages:
+                to_visit.add(f"{base_url}/{page}")
+            
+            while to_visit:
+                url = to_visit.pop()
+                if url in visited:
+                    continue
+                
+                print(f"Scraping: {url}")
+                visited.add(url)
+                
+                # Be nice to the server
+                if len(visited) > 1:
+                    time.sleep(1)
+                
+                content, links = scrape_page(url)
+                
+                if content:
+                    # Extract page name from URL
+                    page_name = url.replace(base_url, '').strip('/').replace('/', '-')
+                    if not page_name:
+                        page_name = 'overview'
+                    
+                    all_content[page_name] = {
+                        'url': url,
+                        'content': content
+                    }
+                
+                # Add new links to visit
+                for link in links:
+                    if link not in visited and link.startswith('https://docs.anthropic.com/en/docs/claude-code'):
+                        to_visit.add(link)
+                
+                # Limit scraping to prevent infinite loops
+                if len(visited) > 100:
+                    print("Reached maximum page limit")
+                    break
+            
+            return all_content
+        
+        if __name__ == "__main__":
+            print("Starting Claude Code documentation scrape...")
+            all_pages = scrape_claude_docs()
+            
+            # Create the combined documentation
+            with open('official/docs.md', 'w', encoding='utf-8') as f:
+                # Write header
+                f.write(f"""# Claude Code Official Documentation
+
+*Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}*
+*Source: https://docs.anthropic.com/en/docs/claude-code*
+
+This file contains all Claude Code documentation pages automatically scraped from Anthropic's docs.
+
+## Table of Contents
+
+""")
+                
+                # Sort pages for consistent ordering
+                sorted_pages = sorted(all_pages.items())
+                
+                # Write table of contents
+                for page_name, page_data in sorted_pages:
+                    title = page_name.replace('-', ' ').title()
+                    anchor = page_name.lower().replace(' ', '-')
+                    f.write(f"- [{title}](#{anchor})\n")
+                
+                f.write("\n---\n\n")
+                
+                # Write all content
+                for page_name, page_data in sorted_pages:
+                    title = page_name.replace('-', ' ').title()
+                    f.write(f"## {title}\n\n")
+                    f.write(f"*Source: {page_data['url']}*\n\n")
+                    f.write(page_data['content'])
+                    f.write("\n\n---\n\n")
+            
+            print(f"Documentation updated successfully with {len(all_pages)} pages")
+            
+            # Also look for changelog/version information
+            print("\nLooking for version and changelog information...")
+            changelog_updates = []
+            
+            for page_name, page_data in all_pages.items():
+                content = page_data['content']
+                
+                # Look for dates and version mentions
+                # Pattern for dates like "December 2024" or "2024-12-01"
+                date_patterns = [
+                    r'(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}',
+                    r'\d{4}-\d{2}-\d{2}',
+                ]
+                
+                # Pattern for versions
+                version_patterns = [
+                    r'v?\d+\.\d+\.\d+',
+                    r'claude-[\w-]+',
+                    r'version\s+[\d.]+',
+                ]
+                
+                found_dates = []
+                found_versions = []
+                
+                for pattern in date_patterns:
+                    found_dates.extend(re.findall(pattern, content, re.IGNORECASE))
+                
+                for pattern in version_patterns:
+                    found_versions.extend(re.findall(pattern, content, re.IGNORECASE))
+                
+                # Look for changelog-like sections
+                if any(keyword in content.lower() for keyword in ['new feature', 'release', 'update', 'changelog', 'what\'s new']):
+                    if found_dates or found_versions:
+                        changelog_updates.append({
+                            'page': page_name,
+                            'url': page_data['url'],
+                            'dates': found_dates,
+                            'versions': found_versions
+                        })
+            
+            if changelog_updates:
+                print(f"Found {len(changelog_updates)} pages with potential changelog information")
+        
+        SCRIPT
+    
+    - name: Run scraper
       run: python scraper.py
     
     - name: Check for changes

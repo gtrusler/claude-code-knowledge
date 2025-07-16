@@ -2,196 +2,174 @@ import requests
 from bs4 import BeautifulSoup
 import markdownify
 from datetime import datetime
-import re
-from urllib.parse import urljoin, urlparse
 import time
+import os
 
-def clean_content(soup_content):
-    """Remove unwanted elements from content"""
-    # Remove script, style, and other non-content tags
-    for element in soup_content.find_all(['style', 'script', 'noscript', 'nav', 'header', 'footer', 'aside']):
-        element.decompose()
-    
-    # Remove elements with certain classes that indicate non-content
-    for element in soup_content.find_all(class_=['sidebar', 'navigation', 'menu', 'breadcrumb', 'toc']):
-        element.decompose()
-        
-    return soup_content
-
-def extract_content(soup):
-    """Extract main content from page"""
-    # Try multiple selectors for documentation content
-    selectors = [
-        'main article',
-        'main',
-        'article', 
-        '[role="main"]',
-        '.docs-content',
-        '.content-wrapper',
-        '.documentation-content',
-        '[data-testid="content"]'
-    ]
-    
-    for selector in selectors:
-        content = soup.select_one(selector)
-        if content and len(content.get_text(strip=True)) > 200:
-            return clean_content(content)
-    
-    # Fallback: find largest content div
-    all_elements = soup.find_all(['div', 'section', 'main', 'article'])
-    if all_elements:
-        content = max(all_elements, key=lambda e: len(e.get_text(strip=True)))
-        if len(content.get_text(strip=True)) > 200:
-            return clean_content(content)
-    
-    return None
-
-def extract_claude_code_links(soup, base_url):
-    """Extract all Claude Code related links from the page"""
+def extract_page_links(soup):
+    """Extract all Claude Code links from a page"""
     links = set()
     
-    # Look for links in navigation and content
-    for a in soup.find_all('a', href=True):
-        href = a['href']
-        
-        # Skip anchors and external links
-        if href.startswith('#') or href.startswith('http') and 'anthropic.com' not in href:
-            continue
-        
-        # Make absolute URL
-        full_url = urljoin(base_url, href)
-        
-        # Only include Claude Code related pages
-        if '/claude-code/' in full_url and full_url.startswith('https://docs.anthropic.com'):
-            # Skip certain types of pages
-            if any(skip in full_url for skip in ['#', '.pdf', '.zip', 'changelog', 'release-notes']):
-                continue
-            links.add(full_url)
+    # Find all links containing /claude-code
+    for link in soup.find_all('a', href=True):
+        href = link['href']
+        if '/claude-code' in href:
+            # Convert relative to absolute
+            if href.startswith('/'):
+                href = f"https://docs.anthropic.com{href}"
+            # Remove fragments and query params
+            href = href.split('#')[0].split('?')[0]
+            links.add(href)
     
     return links
 
-def scrape_page(url, session):
-    """Scrape a single page"""
-    try:
-        print(f"Scraping: {url}")
-        response = session.get(url, timeout=30)
-        response.raise_for_status()
-        
-        soup = BeautifulSoup(response.text, 'html.parser')
-        content = extract_content(soup)
-        
-        if not content:
-            print(f"  No content found for {url}")
-            return None, set()
-        
-        # Convert to markdown
-        markdown = markdownify.markdownify(
-            str(content), 
-            heading_style="ATX",
-            convert=['p', 'div', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 
-                    'ul', 'ol', 'li', 'a', 'code', 'pre', 'blockquote', 
-                    'strong', 'em', 'b', 'i', 'table', 'tr', 'td', 'th']
-        )
-        
-        # Clean up the markdown
-        markdown = re.sub(r'\n{3,}', '\n\n', markdown)
-        markdown = re.sub(r'^\s*\n', '', markdown, flags=re.MULTILINE)
-        
-        # Extract links for recursive scraping
-        links = extract_claude_code_links(soup, url)
-        
-        return markdown, links
-        
-    except Exception as e:
-        print(f"  Error scraping {url}: {str(e)}")
-        return None, set()
+def scrape_page(url, max_retries=3):
+    """Scrape a single page with retries"""
+    for attempt in range(max_retries):
+        try:
+            print(f"  Attempt {attempt + 1} for {url}")
+            response = requests.get(url, timeout=15, headers={
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+            })
+            
+            if response.status_code != 200:
+                print(f"  Got status {response.status_code}")
+                continue
+                
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Find main content
+            content = (
+                soup.find('main') or 
+                soup.find('article') or 
+                soup.find('div', {'class': 'content'}) or
+                soup.find('div', {'role': 'main'})
+            )
+            
+            if not content:
+                print(f"  No content found")
+                return None, set()
+            
+            # Convert to markdown
+            markdown = markdownify.markdownify(str(content), heading_style="ATX")
+            
+            # Get links from this page
+            links = extract_page_links(soup)
+            
+            return markdown, links
+            
+        except Exception as e:
+            print(f"  Error on attempt {attempt + 1}: {e}")
+            if attempt < max_retries - 1:
+                time.sleep(2)  # Wait before retry
+    
+    return None, set()
 
-def scrape_claude_docs_recursive():
-    """Recursively scrape all Claude Code documentation"""
-    base_url = "https://docs.anthropic.com/en/docs/claude-code/overview"
+def scrape_claude_docs():
+    """Scrape all Claude Code documentation"""
+    base_url = "https://docs.anthropic.com/en/docs/claude-code"
+    
+    print("Starting Claude Code documentation scrape...")
+    
+    # Track what we've visited
     visited = set()
     to_visit = {base_url}
-    all_content = {}
     
-    session = requests.Session()
-    session.headers.update({
-        'User-Agent': 'Mozilla/5.0 (compatible; Claude-Code-Docs-Scraper/2.0)'
-    })
+    # Known pages to ensure we get
+    known_pages = [
+        'overview', 'quickstart', 'getting-started', 'setup',
+        'cli-reference', 'slash-commands', 'interactive-mode',
+        'common-workflows', 'settings', 'memory',
+        'hooks', 'mcp', 'sdk', 'github-actions',
+        'ide-integrations', 'troubleshooting',
+        'amazon-bedrock', 'google-vertex-ai', 'bedrock-vertex'
+    ]
+    
+    for page in known_pages:
+        to_visit.add(f"{base_url}/{page}")
+    
+    # Collect all content
+    pages = {}
     
     while to_visit:
         url = to_visit.pop()
-        if url in visited:
-            continue
         
+        # Skip if visited or not claude-code
+        if url in visited or '/claude-code' not in url:
+            continue
+            
         visited.add(url)
-        content, new_links = scrape_page(url, session)
+        print(f"\nScraping: {url}")
+        
+        # Wait between requests
+        time.sleep(1)
+        
+        # Scrape the page
+        content, links = scrape_page(url)
         
         if content:
-            # Extract page title from URL
-            page_name = url.split('/')[-1].replace('-', ' ').title()
-            all_content[url] = {
-                'title': page_name,
+            # Store the content
+            page_name = url.split('/')[-1] or 'overview'
+            pages[page_name] = {
+                'url': url,
                 'content': content
             }
+            print(f"  Success! Found {len(links)} links")
             
             # Add new links to visit
-            for link in new_links:
+            for link in links:
                 if link not in visited:
                     to_visit.add(link)
-        
-        # Be polite to the server
-        time.sleep(0.5)
+        else:
+            print(f"  Failed to scrape")
     
-    return all_content
-
-def compile_documentation(content_dict):
-    """Compile all scraped content into a single document"""
-    # Sort URLs for consistent ordering
-    sorted_urls = sorted(content_dict.keys())
+    # Build the final document
+    print(f"\nBuilding final document from {len(pages)} pages...")
     
-    # Start with header
-    doc = f"""# Claude Code Official Documentation
+    doc_parts = []
+    
+    # Header
+    doc_parts.append(f"""# Claude Code Official Documentation
 
 *Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}*
-*Scraped {len(content_dict)} pages from docs.anthropic.com*
+*Source: {base_url}*
+
+This documentation is automatically scraped from Anthropic's official docs.
 
 ---
 
 ## Table of Contents
 
-"""
+""")
+    
+    # Sort pages for consistent ordering
+    sorted_pages = sorted(pages.items())
+    
     # Add TOC
-    for i, url in enumerate(sorted_urls, 1):
-        title = content_dict[url]['title']
-        anchor = re.sub(r'[^\w\s-]', '', title.lower()).replace(' ', '-')
-        doc += f"{i}. [{title}](#{anchor})\n"
+    for page_name, page_data in sorted_pages:
+        title = page_name.replace('-', ' ').title()
+        doc_parts.append(f"- [{title}](#{page_name})\n")
     
-    doc += "\n---\n\n"
+    # Add content
+    for page_name, page_data in sorted_pages:
+        title = page_name.replace('-', ' ').title()
+        doc_parts.append(f"\n\n---\n\n## {title}\n\n")
+        doc_parts.append(f"*Source: {page_data['url']}*\n\n")
+        doc_parts.append(page_data['content'])
     
-    # Add all content
-    for url in sorted_urls:
-        page = content_dict[url]
-        doc += f"## {page['title']}\n\n"
-        doc += f"*Source: {url}*\n\n"
-        doc += page['content']
-        doc += "\n\n---\n\n"
-    
-    return doc
+    return ''.join(doc_parts)
 
 if __name__ == "__main__":
-    print("Starting comprehensive Claude Code documentation scrape...")
-    all_content = scrape_claude_docs_recursive()
+    # Ensure output directory exists
+    os.makedirs('official', exist_ok=True)
     
-    if all_content:
-        print(f"\nScraped {len(all_content)} pages successfully")
-        documentation = compile_documentation(all_content)
-        
-        with open('official/docs.md', 'w', encoding='utf-8') as f:
-            f.write(documentation)
-        
-        print("Documentation updated successfully")
-    else:
-        print("No content was scraped")
-        # Write error message
-        with open('official/docs.md', 'w', encoding='utf-8') as f:
-            f.write(f"# Claude Code Official Documentation\n\n*Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}*\n\nError: Unable to scrape documentation. The scraper may need updating.")
+    # Scrape the docs
+    docs_content = scrape_claude_docs()
+    
+    # Write to file
+    output_path = 'official/docs.md'
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(docs_content)
+    
+    print(f"\n✅ Documentation updated successfully!")
+    print(f"📄 Wrote {len(docs_content):,} characters to {output_path}")
+    print(f"📑 Total pages scraped: {docs_content.count('---') - 1}")
