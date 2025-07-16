@@ -104,12 +104,15 @@
 
 ## Advanced Features
 
-### Headless Mode Limitations
-*Source: Community guide - 2024*
+### Headless Mode (API Only)
+*Source: Community verification - 2025*
 
-**Problem**: `claude -p` runs non-interactively, harder to debug
-**Solution**: Use `--verbose` flag for debugging headless operations
-**Use cases**: CI/CD, pre-commit hooks, automated migrations
+**Important**: Headless mode (`claude -p`) requires API access, NOT available with Claude Max subscription
+**Problem**: Cannot automate Claude Code with subscription plans
+**Solution**: For automation with Claude Max, consider:
+- Using cloud-based solutions like Terragon
+- Manual batching of tasks
+- Git worktrees for parallel work
 
 ### Multi-Agent Coordination
 *Source: Community guide - 2024*

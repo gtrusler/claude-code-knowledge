@@ -23,7 +23,7 @@ Each entry includes:
 
 ### November 2024
 - Initial Claude Code release
-- **Headless Mode** (`claude -p`) for non-interactive automation
+- **Headless Mode** (`claude -p`) for non-interactive automation - API only, not available with subscription
 - `/compact` command for context summarization
 - `-continue` flag to reload previous conversations
 - *Source: Anthropic announcement + Community guide*

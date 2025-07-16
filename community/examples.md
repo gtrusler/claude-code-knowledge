@@ -226,11 +226,12 @@ echo "Worktree created at: $WORKTREE_DIR"
 echo "Run: cd $WORKTREE_DIR && claude"
 ```
 
-### Headless Mode for CI/CD
+### Headless Mode for CI/CD (API Only)
 *Source: Community guide - 2024*
+*Note: Requires API access, not available with Claude Max subscription*
 
 ```bash
-# Pre-commit hook using headless Claude
+# Pre-commit hook using headless Claude (API ONLY)
 #!/bin/bash
 # .git/hooks/pre-commit
 

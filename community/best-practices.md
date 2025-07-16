@@ -185,3 +185,23 @@ Background agents excel at:
 - Lower cost of exploration encourages more experimentation
 - Focus human time on parts requiring judgment
 - Not every task needs an agent - learn when to do it yourself
+
+
+## Claude Max vs API Limitations
+
+### What Claude Max CANNOT Do
+*Source: Community verification - 2025*
+
+Claude Max subscription ($200/month) provides unlimited usage but:
+- **No headless mode** (`claude -p`) - requires API access
+- **No programmatic access** - interactive CLI only
+- **No CI/CD integration** - can't automate in pipelines
+
+### Automation Workarounds for Claude Max
+*Source: Community patterns - 2025*
+
+Since headless mode requires API:
+1. **Cloud agents** (Terragon) - run Claude Code in cloud environments
+2. **Git worktrees** - manually manage parallel instances
+3. **Task batching** - queue up work for manual processing
+4. **Voice input** - dictate tasks from mobile for later execution
