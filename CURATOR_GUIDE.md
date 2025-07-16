@@ -69,6 +69,12 @@ Verified: [Have you tested it?]
 - Behavior changes
 - Version-specific notes
 
+**resources.md**
+- External repositories
+- Tools and integrations
+- Community projects
+- Learning resources
+
 ## Quality Standards
 
 ### Before Adding Anything

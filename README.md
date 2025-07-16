@@ -23,7 +23,8 @@ official/          # Auto-scraped from Anthropic docs
 community/         # Manually curated insights
 ├── best-practices.md  # Proven patterns that work
 ├── gotchas.md        # Things the docs don't tell you
-└── examples.md       # Real-world usage patterns
+├── examples.md       # Real-world usage patterns
+└── resources.md      # External repos, tools, and guides
 ```
 
 ## How to Use
