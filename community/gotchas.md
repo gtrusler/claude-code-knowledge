@@ -117,3 +117,11 @@
 **Problem**: Multiple Claude instances can conflict on same codebase
 **Solution**: Use git worktrees for isolated branches per agent
 **Setup**: Script to create worktree + copy `.env` and `.claude` files
+
+### The --dangerously-skip-permissions Frustration
+*Source: https://ymichael.com/2025/07/15/claude-code-unleashed.html - July 2025*
+
+**Problem**: Constantly approving simple commands like `find` breaks flow
+**Context**: You want safety but not for every trivial command
+**Solution**: Consider using skip-permissions mode in isolated environments
+**Warning**: Only use when you trust the context completely

@@ -109,3 +109,79 @@ When stuck on a bug:
 - Edit a previous prompt
 - Explore different direction without losing context
 - Effectively "forks" the conversation
+
+## Cost Management with Claude Max
+*Source: https://ymichael.com/2025/07/15/claude-code-unleashed.html - July 2025*
+
+### Claude Max Subscription Value
+- $200/month for effectively unlimited usage (generous rate limits)
+- Single "Hello" to Claude Code costs ~$0.30 without subscription
+- Typical heavy user would pay ~$100/day without Max
+- Mental shift: From "is this worth using Claude for?" to "how can I offload more?"
+
+### When to Get Claude Max
+- If you're thinking about per-use costs
+- If you're debating between Sonnet vs Opus
+- If you want to experiment freely without cost anxiety
+
+## Parallel Agent Workflows
+
+### The Git Worktree Problem
+*Source: https://ymichael.com/2025/07/15/claude-code-unleashed.html - July 2025*
+
+**Problem**: Running multiple agents in worktrees becomes unmanageable
+- Constant context switching between branches
+- IDE window confusion
+- Shared resources (Docker containers) conflicts
+- Management overhead grows exponentially
+
+**Solution**: Cloud-based agents (like Terragon) that:
+- Run in isolated environments
+- Create fresh branches automatically
+- Don't require local resource management
+
+### Background Agent Patterns
+*Source: https://ymichael.com/2025/07/15/claude-code-unleashed.html - July 2025*
+
+Background agents excel at:
+1. **Explore tasks**: "Prototype this approach" - often never merged, read like proposals
+2. **One-shot tasks**: Cleanup, removing feature flags, adding test coverage
+3. **Boilerplate-heavy**: Following established patterns, creating internal pages
+4. **Context-heavy debugging**: Bug investigation where fix is often just a few lines
+
+### Hybrid Local + Background Workflow
+*Source: https://ymichael.com/2025/07/15/claude-code-unleashed.html - July 2025*
+
+**Start on Background (Terragon)**:
+- Almost every task starts here
+- Morning: Fire off batch of tasks (even from phone via voice)
+- Average ~30 tasks/day
+
+**Finish Locally**:
+- Review changes and test
+- Small tweaks to existing PRs
+- Create scaffolding with TODOs for agents to finish
+- Interactive tasks requiring back-and-forth
+
+### Multi-Agent Management Tips
+*Source: https://ymichael.com/2025/07/15/claude-code-unleashed.html - July 2025*
+
+1. **System is crucial**: Without good task management, you'll do worse work
+2. **Morning planning**: Decide how to spend the day by firing off tasks
+3. **"Inbox zero" approach**: Clear/merge/close tasks throughout the day
+4. **Dashboard tracking**: Visual overview of what's left to do
+
+### When to Abandon and Restart
+*Source: https://ymichael.com/2025/07/15/claude-code-unleashed.html - July 2025*
+
+- If agent is going down wrong path, abandon rather than course-correct
+- "That's wrong" rarely helps - better to start fresh with clearer instructions
+- Learn the model's strengths/weaknesses through experimentation
+
+### Task Breakdown for Agents
+*Source: https://ymichael.com/2025/07/15/claude-code-unleashed.html - July 2025*
+
+- Create smaller, more agent-friendly tasks
+- Lower cost of exploration encourages more experimentation
+- Focus human time on parts requiring judgment
+- Not every task needs an agent - learn when to do it yourself

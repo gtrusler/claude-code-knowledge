@@ -288,3 +288,59 @@ claude --dangerously-skip-permissions do "Apply ESLint fixes to entire codebase"
 # Re-enable safety
 claude do "Re-enable network interfaces"
 ```
+
+
+## Real-World Background Agent Examples
+
+### Race Condition Debugging
+*Source: https://ymichael.com/2025/07/15/claude-code-unleashed.html - July 2025*
+
+Background agents excel at context-heavy debugging. Example from Terragon:
+- **Problem**: Race condition with error messages in distributed system
+- **Task**: "Investigate the race condition where error messages appear unexpectedly"
+- **Result**: Agent identified and fixed issue in one shot by reading through extensive codebase
+
+### User Bug Report First Pass
+*Source: https://ymichael.com/2025/07/15/claude-code-unleashed.html - July 2025*
+
+Pattern for handling user bug reports:
+1. Send bug description to background agent immediately
+2. Even if implementation isn't perfect, agent's analysis provides insights
+3. Use agent's thought process to understand problem better
+4. ~50% of bug reports get useful first pass from agent
+
+### Incremental Prototyping
+*Source: https://ymichael.com/2025/07/15/claude-code-unleashed.html - July 2025*
+
+Use background agents to explore solutions incrementally:
+```bash
+# Start vague
+claude do "Prototype a way to handle user sessions"
+
+# Read output, learn about the problem space
+
+# Get more specific
+claude do "Implement session handling using Redis with JWT tokens"
+
+# Read again, identify potential issues
+
+# Final specific version
+claude do "Implement Redis-backed JWT sessions with refresh token rotation"
+```
+
+Most prototype tasks are never merged but provide valuable learning.
+
+### Morning Task Batch Pattern
+*Source: https://ymichael.com/2025/07/15/claude-code-unleashed.html - July 2025*
+
+Start your day by firing off tasks to background agents:
+```bash
+# Morning routine (can even do from phone with voice)
+claude do "Fix the CSS alignment issue on mobile dashboard"
+claude do "Add unit tests for the payment processing module"
+claude do "Investigate why the cron job failed last night"
+claude do "Prototype a solution for the rate limiting problem"
+claude do "Clean up deprecated API endpoints"
+```
+
+Then spend the day reviewing and merging agent work.
