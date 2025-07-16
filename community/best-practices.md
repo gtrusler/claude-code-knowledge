@@ -57,6 +57,87 @@ Claude Code sometimes assumes current directory incorrectly. Always verify with 
 - Use file paths instead of descriptions
 - Clear context between major task switches
 
+## Workflow Methodologies
+
+### Explore, Plan, Code, Test (EPCT) Workflow
+*Source: https://www.anthropic.com/engineering/claude-code-best-practices - July 2025*
+
+Anthropic recommends this systematic workflow for thorough implementation:
+
+1. **Explore**
+   - Use parallel subagents to find and read all relevant files
+   - Gather examples and identify edit targets
+   - Build comprehensive understanding before coding
+
+2. **Plan**
+   - Write detailed implementation plan
+   - Include tests, documentation, and UI components
+   - Use web research for unclear areas
+   - Pause to ask user questions if needed
+   - Use "think" keywords for complex problems:
+     - `think` < `think hard` < `think harder` < `ultrathink`
+
+3. **Code**
+   - Follow existing codebase style
+   - Prefer clear naming over extensive comments
+   - Run autoformatting when done
+   - Fix reasonable linter warnings
+
+4. **Test**
+   - Use parallel subagents to run tests
+   - Ensure all tests pass
+   - For UX changes, use browser testing
+   - If problems found, return to planning stage
+
+5. **Write Up**
+   - Create PR description with:
+     - What you set out to do
+     - Choices made with justifications
+     - Useful commands for future developers
+
+### Custom Command Implementation
+*Source: Reddit r/ClaudeAI - July 2025*
+
+Save as `~/.claude/commands/explore-plan-code-test.md`:
+```markdown
+At the end of this message, I will ask you to do something. Please follow the "Explore, Plan, Code, Test" workflow when you start.
+
+# Explore
+First, use parallel subagents to find and read all files that may be useful for implementing the ticket, either as examples or as edit targets. The subagents should return relevant file paths, and any other info that may be useful.
+
+# Plan
+Next, think hard and write up a detailed implementation plan. Don't forget to include tests, lookbook components, and documentation. Use your judgement as to what is necessary, given the standards of this repo.
+
+If there are things you are not sure about, use parallel subagents to do some web research. They should only return useful information, no noise.
+
+If there are things you still do not understand or questions you have for the user, pause here to ask them before continuing.
+
+# Code
+When you have a thorough implementation plan, you are ready to start writing code. Follow the style of the existing codebase (e.g. we prefer clearly named variables and methods to extensive comments). Make sure to run our autoformatting script when you're done, and fix linter warnings that seem reasonable to you.
+
+# Test
+Use parallel subagents to run tests, and make sure they all pass.
+
+If your changes touch the UX in a major way, use the browser to make sure that everything works correctly. Make a list of what to test for, and use a subagent for this step.
+
+If your testing shows problems, go back to the planning stage and think ultrahard.
+
+# Write up your work
+When you are happy with your work, write up a short report that could be used as the PR description. Include what you set out to do, the choices you made with their brief justification, and any commands you ran in the process that may be useful for future developers to know about.
+
+$ARGUMENTS
+```
+
+Usage: `/explore-plan-code-test <task description>`
+
+### Key Insights from Community
+*Source: Reddit discussion - July 2025*
+
+- **Plan Mode Integration**: EPCT workflow may already be partially integrated into Claude Code's system prompt (low confidence)
+- **Test-Driven Alternative**: Some users prefer Test before Code for TDD approach
+- **Plan Persistence**: Save plans to `.md` files for resuming across sessions
+- **CLAUDE.md Balance**: Keep project instructions concise - avoid essays on methodology
+
 ## Advanced Context Techniques
 
 ### Plan Mode Activation
