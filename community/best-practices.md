@@ -57,6 +57,62 @@ Claude Code sometimes assumes current directory incorrectly. Always verify with 
 - Use file paths instead of descriptions
 - Clear context between major task switches
 
+## Modular CLAUDE.md Architecture
+*Source: https://github.com/oxygen-fragment/claude-modular - July 2025*
+
+### The Problem with Monolithic CLAUDE.md
+- 2,000-5,000 word files that Claude mostly ignores
+- Burns tokens loading everything on every request
+- Claude gets overwhelmed and misses important instructions
+
+### Modular Command System
+*Discovered by Reddit user with ADHD optimizing for focus*
+
+Instead of one massive CLAUDE.md, use 20+ specific command files:
+```
+~/.claude/commands/
+├── project-create-feature.md
+├── dev-code-review.md
+├── test-generate-tests.md
+└── deploy-prepare-release.md
+```
+
+### Command Structure
+```xml
+<instructions>
+  <requirements>What you need to not break everything</requirements>
+  <execution>Step-by-step so Claude doesn't get creative</execution>
+  <validation>How to know if it worked</validation>
+  <examples>Real examples because abstract is useless</examples>
+</instructions>
+```
+
+### Results
+- **50-80% fewer tokens** per session
+- **Consistent command following** - Claude actually does what you ask
+- **Sub-30 second setup** for new projects
+- **200 lines** in main CLAUDE.md vs 2,000+
+
+### Implementation
+1. Create `~/.claude/commands/` directory
+2. Add command files with XML structure
+3. Reduce main CLAUDE.md to project-specific context only
+4. Use commands like: `/project:create-feature auth-system`
+
+### Why It Works
+- **Progressive disclosure** - Claude only loads what it needs
+- **Specific context** - No vague "be helpful" instructions
+- **XML structure** - Claude follows this format consistently
+- **Just-in-time loading** - Commands load only when called
+
+### Integration with MCP
+Works seamlessly with MCP servers:
+- Linear
+- Notion
+- Memory
+- Filesystem
+- Gemini (being added)
+
 ## Workflow Methodologies
 
 ### Explore, Plan, Code, Test (EPCT) Workflow

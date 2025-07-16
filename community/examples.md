@@ -201,6 +201,82 @@ if data.get('tool_name') == 'Task':
         sys.exit(2)
 ```
 
+## Modular Command Examples
+
+### Feature Creation Command
+*Source: https://github.com/oxygen-fragment/claude-modular - July 2025*
+
+Create `~/.claude/commands/project-create-feature.md`:
+```xml
+<instructions>
+  <requirements>
+    - Valid feature name provided
+    - Git repository initialized
+    - No uncommitted changes
+  </requirements>
+  
+  <execution>
+    1. Create feature branch: git checkout -b feature/{name}
+    2. Create directory structure:
+       - src/features/{name}/
+       - src/features/{name}/components/
+       - src/features/{name}/hooks/
+       - src/features/{name}/types/
+    3. Generate base files:
+       - index.ts with exports
+       - README.md with feature description
+       - {Name}.test.tsx with initial test
+  </execution>
+  
+  <validation>
+    - Branch exists and is checked out
+    - Directory structure created
+    - All files generated with correct naming
+  </validation>
+  
+  <examples>
+    Input: /project:create-feature auth-system
+    Result: Creates feature/auth-system branch with full structure
+  </examples>
+</instructions>
+```
+
+### Code Review Command
+*Source: https://github.com/oxygen-fragment/claude-modular - July 2025*
+
+Create `~/.claude/commands/dev-code-review.md`:
+```xml
+<instructions>
+  <requirements>
+    - Git repository with changes
+    - Optional focus area (security, performance, style)
+  </requirements>
+  
+  <execution>
+    1. Get diff: git diff --cached or git diff HEAD~1
+    2. Analyze based on focus:
+       - security: Check for vulnerabilities, exposed secrets
+       - performance: Look for O(n²), unnecessary renders
+       - style: Verify naming conventions, formatting
+    3. Generate review with:
+       - Severity levels (critical, warning, suggestion)
+       - Line-specific comments
+       - Overall assessment
+  </execution>
+  
+  <validation>
+    - Review covers all changed files
+    - Actionable feedback provided
+    - No false positives
+  </validation>
+  
+  <examples>
+    Input: /dev:code-review --focus=security
+    Output: Markdown report with security-focused review
+  </examples>
+</instructions>
+```
+
 ## Multi-Agent Workflows
 
 ### Git Worktree Setup for Parallel Agents
