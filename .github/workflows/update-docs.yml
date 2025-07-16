@@ -175,14 +175,14 @@ jobs:
                 # Write header
                 f.write(f"""# Claude Code Official Documentation
 
-*Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}*
-*Source: https://docs.anthropic.com/en/docs/claude-code*
+        *Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}*
+        *Source: https://docs.anthropic.com/en/docs/claude-code*
 
-This file contains all Claude Code documentation pages automatically scraped from Anthropic's docs.
+        This file contains all Claude Code documentation pages automatically scraped from Anthropic's docs.
 
-## Table of Contents
+        ## Table of Contents
 
-""")
+        """)
                 
                 # Sort pages for consistent ordering
                 sorted_pages = sorted(all_pages.items())
@@ -247,6 +247,33 @@ This file contains all Claude Code documentation pages automatically scraped fro
             
             if changelog_updates:
                 print(f"Found {len(changelog_updates)} pages with potential changelog information")
+                
+                # Read existing changelog
+                existing_changelog = ""
+                try:
+                    with open('official/changelog.md', 'r', encoding='utf-8') as f:
+                        existing_changelog = f.read()
+                except:
+                    pass
+                
+                # Append new discoveries if not already present
+                with open('official/changelog.md', 'a', encoding='utf-8') as f:
+                    # Check if we already have an auto-discovered section for today
+                    today_marker = f"Auto-discovered entries - {datetime.now().strftime('%Y-%m-%d')}"
+                    if today_marker not in existing_changelog:
+                        f.write(f"\n\n## {today_marker}\n\n")
+                        f.write("*These entries were automatically discovered from documentation pages. Manual curation recommended.*\n\n")
+                        
+                        for update in changelog_updates:
+                            f.write(f"### From page: {update['page']}\n")
+                            f.write(f"*Source: {update['url']}*\n\n")
+                            if update['dates']:
+                                f.write(f"- Dates mentioned: {', '.join(set(update['dates']))}\n")
+                            if update['versions']:
+                                f.write(f"- Versions found: {', '.join(set(update['versions']))}\n")
+                            f.write("\n")
+                        
+                        print("Updated changelog with auto-discovered entries")
         
         SCRIPT
     
@@ -256,12 +283,14 @@ This file contains all Claude Code documentation pages automatically scraped fro
     - name: Check for changes
       id: check
       run: |
-        if git diff --quiet official/docs.md; then
+        if git diff --quiet official/docs.md official/changelog.md; then
           echo "No changes detected"
           echo "has_changes=false" >> $GITHUB_OUTPUT
         else
           echo "Changes detected"
           echo "has_changes=true" >> $GITHUB_OUTPUT
+          # Show what changed for debugging
+          git diff --stat
         fi
     
     - name: Commit and push changes
@@ -269,7 +298,7 @@ This file contains all Claude Code documentation pages automatically scraped fro
       run: |
         git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        git add official/docs.md
+        git add official/docs.md official/changelog.md
         git commit -m "Update Claude Code documentation - $(date +'%Y-%m-%d')"
         git pull --rebase
         git push
