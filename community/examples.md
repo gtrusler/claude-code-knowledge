@@ -201,6 +201,116 @@ if data.get('tool_name') == 'Task':
         sys.exit(2)
 ```
 
+### Event-Driven Hook Framework
+*Source: https://www.haihai.ai/hooks/ - July 2025*
+
+Build a modular event dispatcher for Claude Code actions:
+
+```python
+#!/usr/bin/env python3
+# Event-driven hook handler framework
+import sys
+import json
+import subprocess
+from pathlib import Path
+import re
+
+# Event mapping - map Claude events to handler functions
+EVENT_MAP = {
+    # System events
+    "Notification": lambda d: handle_notification(d),
+    "Stop": lambda d: handle_task_complete(d),
+    
+    # File operations
+    "Edit": lambda d: handle_file_edit(d),
+    "Write": lambda d: handle_file_write(d),
+    
+    # Task management
+    "TodoWrite": lambda d: handle_todo_update(d),
+}
+
+# Pattern-based command handlers
+BASH_PATTERNS = [
+    (r'^git commit', handle_git_commit),
+    (r'^gh pr', handle_pull_request),
+    (r'^npm test|^pytest', handle_test_run),
+    (r'.*', handle_generic_bash),  # Fallback
+]
+
+def log_event(event_data):
+    """Log all events for auditing/debugging"""
+    log_path = Path.home() / ".claude" / "events.jsonl"
+    log_path.parent.mkdir(exist_ok=True)
+    
+    with open(log_path, "a") as f:
+        f.write(json.dumps(event_data) + "\n")
+
+def handle_notification(data):
+    """Claude is ready - could trigger startup scripts"""
+    pass
+
+def handle_task_complete(data):
+    """Task completed - could trigger notifications, git commits, etc"""
+    pass
+
+def handle_file_edit(data):
+    """File edited - could trigger formatters, linters, tests"""
+    file_path = data.get("tool_input", {}).get("file_path", "")
+    
+    # Example: Auto-format on save
+    if file_path.endswith(('.py', '.js', '.ts')):
+        # Trigger formatter based on file type
+        pass
+
+def handle_bash_command(data):
+    """Route bash commands to appropriate handlers"""
+    command = data.get("tool_input", {}).get("command", "")
+    
+    for pattern, handler in BASH_PATTERNS:
+        if re.match(pattern, command, re.IGNORECASE):
+            return handler(data)
+
+def main():
+    try:
+        # Read event from Claude
+        event_data = json.load(sys.stdin)
+        
+        # Log everything
+        log_event(event_data)
+        
+        # Route to appropriate handler
+        event_name = event_data.get("hook_event_name", "")
+        tool_name = event_data.get("tool_name", "")
+        
+        # Handle system events
+        if event_name in EVENT_MAP:
+            EVENT_MAP[event_name](event_data)
+        
+        # Handle tool events
+        elif tool_name in EVENT_MAP:
+            EVENT_MAP[tool_name](event_data)
+        
+        # Special handling for bash
+        elif tool_name == "Bash" and event_name == "PreToolUse":
+            handle_bash_command(event_data)
+        
+        # Always exit successfully
+        sys.exit(0)
+        
+    except Exception as e:
+        print(f"Hook error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+```
+
+Key insights:
+- Use dictionary dispatch instead of if/elif chains
+- Pattern matching for command-specific logic
+- Structured logging for debugging
+- Modular handlers for different event types
+
 ## Modular Command Examples
 
 ### Feature Creation Command
