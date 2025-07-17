@@ -128,3 +128,13 @@
 **Context**: You want safety but not for every trivial command
 **Solution**: Consider using skip-permissions mode in isolated environments
 **Warning**: Only use when you trust the context completely
+
+## Performance Degradation
+
+### The 50% Context Threshold
+*Source: Reddit r/ClaudeAI comprehensive guide - 2025*
+
+**Problem**: Performance tanks when context bar exceeds 50%
+**Symptoms**: Claude misses details, makes more errors, slower responses
+**Solution**: Use `/compact` proactively, not reactively
+**Follow-up**: Always restate current task after compacting

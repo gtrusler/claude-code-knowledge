@@ -11,6 +11,15 @@ Each entry includes:
 
 ---
 
+## 2025
+
+### January 2025
+- **Explore-Plan-Code-Test (EPCT) Workflow** documented by Anthropic engineering team
+- **Sub-task with agents** keyword discovered for parallel file operations
+- **Claude Max Limitations** clarified - no headless mode with subscription
+- **Memory-bank Pattern** popularized for complex project management
+- *Source: Anthropic engineering blog + Reddit community*
+
 ## 2024
 
 ### December 2024

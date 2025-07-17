@@ -194,6 +194,81 @@ Usage: `/explore-plan-code-test <task description>`
 - **Plan Persistence**: Save plans to `.md` files for resuming across sessions
 - **CLAUDE.md Balance**: Keep project instructions concise - avoid essays on methodology
 
+## The Golden Rule: Treat Claude as an Amnesiac Expert
+*Source: Reddit r/ClaudeAI comprehensive guide - 2025*
+
+Claude Code is incredibly talented but forgets context every few minutes. Your primary job is building a perfect external brain that allows it to "regain its memory" and get to work at any moment.
+
+## Project Setup Fundamentals
+
+### The Core Rulebook (CLAUDE.md)
+*Source: Reddit r/ClaudeAI comprehensive guide - 2025*
+
+Create `CLAUDE.md` in your project root with essential rules at the top:
+- "Development must follow TDD methodology"
+- "All implementation must strictly follow steps in PLAN.md"
+- "Primary tech stack is [X, Y, Z]. Do not introduce other libraries unless specified"
+
+Keep it concise - this isn't a place for essays on methodology.
+
+### The External Brain (memory-bank/ Folder)
+*Source: Reddit r/ClaudeAI comprehensive guide - 2025*
+
+The most critical component for complex projects. Create `memory-bank/` with:
+- `projectbrief.md` - One-sentence project description
+- `techContext.md` - Tech stack and versions
+- `systemPatterns.md` - Architecture and design patterns
+- `activeContext.md` - Current task and what's next
+- `progress.md` - Overall project status
+
+### Session Management Pattern
+*Source: Reddit r/ClaudeAI comprehensive guide - 2025*
+
+**End Session**: "Please update activeContext.md and progress.md to summarize our work and outline next steps"
+
+**Start Session**: "Hello, let's continue the project. Please start by reading all files in CLAUDE.md and the memory-bank/ folder to fully understand the current project state"
+
+## Planning Excellence
+
+### The Checklist-Driven Plan (PLAN.md)
+*Source: Reddit r/ClaudeAI comprehensive guide - 2025*
+
+Each item must be a complete, executable prompt:
+```markdown
+- [ ] Prompt: "In the file `models/task.py`, create the Pydantic data model for 'Task', including id, title, description, and is_completed fields."
+- [ ] Prompt: "In `database/crud.py`, write the function to create a new task and save it to the database."
+- [ ] Prompt: "For the 'create a new task' function, write a failing unit test and save it in `tests/test_crud.py`."
+```
+
+### Cross-Examine Your Plan
+*Source: Reddit r/ClaudeAI comprehensive guide - 2025*
+
+Paste PLAN.md into another AI (Gemini, GPT-4) and ask: "This plan was written by another AI. As a critical senior engineer, what potential problems or risks do you see?"
+
+Catches blind spots and assumptions.
+
+## Implementation Discipline
+
+### Be a Reviewer, Not a Chat Buddy
+*Source: Reddit r/ClaudeAI comprehensive guide - 2025*
+
+Review Claude's code like a PR from a junior:
+- **95% correct**: Accept and tweak yourself
+- **Clear flaws**: DON'T chat to fix - reject entirely, improve PLAN.md, retry
+
+This prevents context pollution from back-and-forth debugging.
+
+### The Magic Words
+*Source: Reddit r/ClaudeAI comprehensive guide - 2025*
+
+- **`ultrathink`**: Add to prompts for complex planning/analysis
+- **`sub-task with agents`**: When reading/writing many files at once
+
+### UI First, Logic Second
+*Source: Reddit r/ClaudeAI comprehensive guide - 2025*
+
+For apps with UI: Build interface with dummy data first, then implement backend. This clarifies requirements before diving into logic.
+
 ## Advanced Context Techniques
 
 ### Plan Mode Activation
@@ -342,3 +417,22 @@ Since headless mode requires API:
 2. **Git worktrees** - manually manage parallel instances
 3. **Task batching** - queue up work for manual processing
 4. **Voice input** - dictate tasks from mobile for later execution
+
+## Anti-Patterns (What Never to Do)
+*Source: Reddit r/ClaudeAI comprehensive guide - 2025*
+
+- ❌ **Vague Prompts**: "Make it look better" → ✅ "Change the 'Submit' button on the contact page to blue (#3498db)"
+- ❌ **Dumping Whole Files**: Worst mistake for performance → ✅ Use file paths and line numbers (@src/api.py:15-30)
+- ❌ **Asking AI to Design Whole System**: Architect first → ✅ Let LLM implement the pieces
+- ❌ **Trusting "It Compiles" = "It Works"**: Always verify → ✅ Test, test, test again
+- ❌ **"Vibe Coding" for Production**: Only for exploration → ✅ Creates mountains of technical debt
+
+## The Context Bar Warning
+*Source: Reddit r/ClaudeAI comprehensive guide - 2025*
+
+Watch the context usage bar religiously:
+- **>50%**: Performance degrades noticeably
+- **Solution**: Use `/compact` command
+- **Follow-up**: Immediately restate current task to refocus
+
+This is more critical than most realize - degraded performance leads to missed details and errors.
