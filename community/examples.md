@@ -201,6 +201,70 @@ if data.get('tool_name') == 'Task':
         sys.exit(2)
 ```
 
+## Multi-Agent Development Patterns
+
+### ClaudePreference Orchestrated Development
+*Source: https://github.com/penwyp/ClaudePreference - January 2025*
+
+A comprehensive multi-agent system using three specialized Claude Code agents:
+
+**Architecture**:
+- **Orchestrator Agent**: Strategic planning, architecture decisions, workflow coordination
+- **Developer Agent**: Implementation with research-informed coding practices
+- **Reviewer Agent**: Quality assurance, security validation, completeness checks
+
+**Key Features**:
+- Research-driven approach with MCP tools integration
+- Template-based prompt generation for consistent agent communication
+- Dynamic context-aware prompts with strict quality enforcement
+- Build verification with 100% functional coverage requirement
+- Evidence-based decision making with external validation
+
+**Communication Flow**:
+```
+Orchestrator → Developer:
+- Task specification
+- Recommended patterns from research
+- Architecture constraints
+
+Developer → Orchestrator:
+- Complete implementation
+- No TODO/stub code
+- Build verification passed
+
+Orchestrator → Reviewer:
+- Code for review
+- Architecture context
+- Research references
+
+Reviewer → Orchestrator:
+- Detailed findings
+- External validation results
+- Accept/Reject decision
+```
+
+**Usage**: `/m-orchestrated-dev requirements.md`
+
+### Claude Code Agent Farm
+*Source: Hacker News Show HN - January 2025*
+
+Parallel processing framework for running multiple Claude Code sessions:
+
+**Key Features**:
+- Run 20+ Claude Code agents simultaneously (up to 50 with max_agents config)
+- Multiple workflows: Bug fixing, best practices, coordinated multi-agent development
+- Advanced lock-based system prevents conflicts between parallel agents
+- Real-time dashboard showing agent status and progress
+- Auto-recovery: Automatically restarts agents when needed
+- Git commits and structured progress documents
+
+**Best For**:
+- Large-scale code improvements
+- Systematic refactoring across codebases
+- Parallel implementation of independent features
+
+## Slash Command Examples
+
 ### Event-Driven Hook Framework
 *Source: https://www.haihai.ai/hooks/ - July 2025*
 
@@ -311,160 +375,6 @@ Key insights:
 - Structured logging for debugging
 - Modular handlers for different event types
 
-## Modular Command Examples
-
-### Feature Creation Command
-*Source: https://github.com/oxygen-fragment/claude-modular - July 2025*
-
-Create `~/.claude/commands/project-create-feature.md`:
-```xml
-<instructions>
-  <requirements>
-    - Valid feature name provided
-    - Git repository initialized
-    - No uncommitted changes
-  </requirements>
-  
-  <execution>
-    1. Create feature branch: git checkout -b feature/{name}
-    2. Create directory structure:
-       - src/features/{name}/
-       - src/features/{name}/components/
-       - src/features/{name}/hooks/
-       - src/features/{name}/types/
-    3. Generate base files:
-       - index.ts with exports
-       - README.md with feature description
-       - {Name}.test.tsx with initial test
-  </execution>
-  
-  <validation>
-    - Branch exists and is checked out
-    - Directory structure created
-    - All files generated with correct naming
-  </validation>
-  
-  <examples>
-    Input: /project:create-feature auth-system
-    Result: Creates feature/auth-system branch with full structure
-  </examples>
-</instructions>
-```
-
-### Code Review Command
-*Source: https://github.com/oxygen-fragment/claude-modular - July 2025*
-
-Create `~/.claude/commands/dev-code-review.md`:
-```xml
-<instructions>
-  <requirements>
-    - Git repository with changes
-    - Optional focus area (security, performance, style)
-  </requirements>
-  
-  <execution>
-    1. Get diff: git diff --cached or git diff HEAD~1
-    2. Analyze based on focus:
-       - security: Check for vulnerabilities, exposed secrets
-       - performance: Look for O(n²), unnecessary renders
-       - style: Verify naming conventions, formatting
-    3. Generate review with:
-       - Severity levels (critical, warning, suggestion)
-       - Line-specific comments
-       - Overall assessment
-  </execution>
-  
-  <validation>
-    - Review covers all changed files
-    - Actionable feedback provided
-    - No false positives
-  </validation>
-  
-  <examples>
-    Input: /dev:code-review --focus=security
-    Output: Markdown report with security-focused review
-  </examples>
-</instructions>
-```
-
-## Multi-Agent Workflows
-
-### Git Worktree Setup for Parallel Agents
-*Source: Community guide - 2024*
-
-```bash
-#!/bin/bash
-# setup-worktree.sh - Create isolated worktree for Claude agent
-set -euo pipefail
-
-BRANCH=$1
-WORKTREE_DIR="worktrees/$BRANCH"
-
-# Create worktree
-git worktree add "$WORKTREE_DIR" -b "$BRANCH"
-
-# Copy config files
-cp .env "$WORKTREE_DIR/.env" 2>/dev/null || true
-cp -r .claude "$WORKTREE_DIR/.claude" 2>/dev/null || true
-
-# Open in new terminal
-echo "Worktree created at: $WORKTREE_DIR"
-echo "Run: cd $WORKTREE_DIR && claude"
-```
-
-### Headless Mode for CI/CD (API Only)
-*Source: Community guide - 2024*
-*Note: Requires API access, not available with Claude Max subscription*
-
-```bash
-# Pre-commit hook using headless Claude (API ONLY)
-#!/bin/bash
-# .git/hooks/pre-commit
-
-# Run Claude in headless mode to check code quality
-claude -p "Review staged files for code quality issues" --verbose
-
-# Run as linter
-claude -p "Check if commit message follows conventional commits format"
-
-# Migration helper
-claude -p "Update all import statements from old API to new API"
-```
-
-### Custom Slash Commands
-*Source: Community guide - 2024*
-
-```markdown
-<!-- .claude/commands/fix-github-issue.md -->
-# Fix GitHub Issue
-
-Fetch issue #{number} from GitHub and implement a fix:
-
-1. Read the issue description and comments
-2. Understand the problem
-3. Create a test that reproduces the issue
-4. Implement the fix
-5. Verify tests pass
-6. Create a commit with message "fix: #{number} - {summary}"
-```
-
-## Custom Slash Commands
-*Source: Community guide - 2024*
-
-```markdown
-<!-- .claude/commands/fix-github-issue.md -->
-# Fix GitHub Issue
-
-Fetch issue #{number} from GitHub and implement a fix:
-
-1. Read the issue description and comments
-2. Understand the problem
-3. Create a test that reproduces the issue
-4. Implement the fix
-5. Verify tests pass
-6. Create a commit with message "fix: #{number} - {summary}"
-```
-
 ### Explore-Plan-Code-Test Command
 *Source: https://www.anthropic.com/engineering/claude-code-best-practices + Reddit implementation - July 2025*
 
@@ -506,36 +416,83 @@ $ARGUMENTS
 - Creates better documentation trail
 - Encourages thorough testing
 
-### TDD Workflow Example
-*Source: Community guide - 2024*
+### Modular Command Examples
 
-```bash
-# Complete TDD cycle
-claude do "Write tests for the user authentication feature - DO NOT implement yet"
-claude do "Run the tests and confirm they fail"
-claude do "Now implement just enough code to make the tests pass"
-claude do "Refactor the implementation while keeping tests green"
+#### Feature Creation Command
+*Source: https://github.com/oxygen-fragment/claude-modular - July 2025*
+
+Create `~/.claude/commands/project-create-feature.md`:
+```xml
+<instructions>
+  <requirements>
+    - Valid feature name provided
+    - Git repository initialized
+    - No uncommitted changes
+  </requirements>
+  
+  <execution>
+    1. Create feature branch: git checkout -b feature/{name}
+    2. Create directory structure:
+       - src/features/{name}/
+       - src/features/{name}/components/
+       - src/features/{name}/hooks/
+       - src/features/{name}/types/
+    3. Generate base files:
+       - index.ts with exports
+       - README.md with feature description
+       - {Name}.test.tsx with initial test
+  </execution>
+  
+  <validation>
+    - Branch exists and is checked out
+    - Directory structure created
+    - All files generated with correct naming
+  </validation>
+  
+  <examples>
+    Input: /project:create-feature auth-system
+    Result: Creates feature/auth-system branch with full structure
+  </examples>
+</instructions>
 ```
 
-### Safe YOLO Mode Pattern
-*Source: Community guide - 2024*
+#### Code Review Command
+*Source: https://github.com/oxygen-fragment/claude-modular - July 2025*
 
-```bash
-# Only in isolated environment!
-# Useful for large refactoring or boilerplate generation
-
-# First, ensure no network access
-claude do "Disable network interfaces"
-
-# Then run in skip-permissions mode
-claude --dangerously-skip-permissions do "Apply ESLint fixes to entire codebase"
-
-# Re-enable safety
-claude do "Re-enable network interfaces"
+Create `~/.claude/commands/dev-code-review.md`:
+```xml
+<instructions>
+  <requirements>
+    - Git repository with changes
+    - Optional focus area (security, performance, style)
+  </requirements>
+  
+  <execution>
+    1. Get diff: git diff --cached or git diff HEAD~1
+    2. Analyze based on focus:
+       - security: Check for vulnerabilities, exposed secrets
+       - performance: Look for O(n²), unnecessary renders
+       - style: Verify naming conventions, formatting
+    3. Generate review with:
+       - Severity levels (critical, warning, suggestion)
+       - Line-specific comments
+       - Overall assessment
+  </execution>
+  
+  <validation>
+    - Review covers all changed files
+    - Actionable feedback provided
+    - No false positives
+  </validation>
+  
+  <examples>
+    Input: /dev:code-review --focus=security
+    Output: Markdown report with security-focused review
+  </examples>
+</instructions>
 ```
 
-
-## Real-World Background Agent Examples
+## Background Agent Patterns
 
 ### Race Condition Debugging
 *Source: https://ymichael.com/2025/07/15/claude-code-unleashed.html - July 2025*
@@ -589,3 +546,56 @@ claude do "Clean up deprecated API endpoints"
 ```
 
 Then spend the day reviewing and merging agent work.
+
+## Workflow Optimization Patterns
+
+### TDD Workflow Example
+*Source: Community guide - 2024*
+
+```bash
+# Complete TDD cycle
+claude do "Write tests for the user authentication feature - DO NOT implement yet"
+claude do "Run the tests and confirm they fail"
+claude do "Now implement just enough code to make the tests pass"
+claude do "Refactor the implementation while keeping tests green"
+```
+
+### Git Worktree Setup for Parallel Agents
+*Source: Community guide - 2024*
+
+```bash
+#!/bin/bash
+# setup-worktree.sh - Create isolated worktree for Claude agent
+set -euo pipefail
+
+BRANCH=$1
+WORKTREE_DIR="worktrees/$BRANCH"
+
+# Create worktree
+git worktree add "$WORKTREE_DIR" -b "$BRANCH"
+
+# Copy config files
+cp .env "$WORKTREE_DIR/.env" 2>/dev/null || true
+cp -r .claude "$WORKTREE_DIR/.claude" 2>/dev/null || true
+
+# Open in new terminal
+echo "Worktree created at: $WORKTREE_DIR"
+echo "Run: cd $WORKTREE_DIR && claude"
+```
+
+### Safe YOLO Mode Pattern
+*Source: Community guide - 2024*
+
+```bash
+# Only in isolated environment!
+# Useful for large refactoring or boilerplate generation
+
+# First, ensure no network access
+claude do "Disable network interfaces"
+
+# Then run in skip-permissions mode
+claude --dangerously-skip-permissions do "Apply ESLint fixes to entire codebase"
+
+# Re-enable safety
+claude do "Re-enable network interfaces"
+```
