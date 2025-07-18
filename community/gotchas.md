@@ -138,3 +138,23 @@
 **Symptoms**: Claude misses details, makes more errors, slower responses
 **Solution**: Use `/compact` proactively, not reactively
 **Follow-up**: Always restate current task after compacting
+
+
+## Windows-Specific Issues
+
+### Shift+Tab Not Working
+*Source: https://github.com/anthropics/claude-code/issues/3368 - July 2025*
+
+**Problem**: Shift+Tab doesn't activate plan mode on Windows PowerShell
+**Environment**: Windows 11, PowerShell, Claude Code 1.0.51+
+**Status**: Known issue, no current workaround
+**Alternative**: Use other planning strategies or different terminal
+
+### File Edit Crashes on Windows
+*Source: https://github.com/anthropics/claude-code/issues/3381 - July 2025*
+
+**Problem**: Edit/Write tools crash with filesystem provider error
+**Error**: `cannot open _claude_fs_right:c%3A%5Cprojects...`
+**Cause**: Incorrect internal path handling on Windows
+**Impact**: Can read files but crashes on edit attempts
+**Status**: Active bug with Windows path encoding
