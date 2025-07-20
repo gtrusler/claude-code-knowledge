@@ -57,6 +57,29 @@ Claude Code sometimes assumes current directory incorrectly. Always verify with 
 - Use file paths instead of descriptions
 - Clear context between major task switches
 
+## Custom Slash Commands
+
+### Simple Hello World Command
+*Source: https://github.com/hesreallyhim/awesome-claude-code - 2025*
+
+Create `~/.claude/commands/say-hello.md`:
+```markdown
+# /say-hello
+
+Print "Hello, world!" to the console and confirm the command system is working.
+```
+
+Usage: `/say-hello`
+
+### Create Your Own Commands
+*Source: Community patterns - 2025*
+
+Commands are just markdown files in `~/.claude/commands/`:
+- File name becomes command name (with `project:` prefix)
+- Content is instructions for Claude
+- Use `$ARGUMENTS` placeholder for user input
+- Keep instructions clear and specific
+
 ## Modular CLAUDE.md Architecture
 *Source: https://github.com/oxygen-fragment/claude-modular - July 2025*
 

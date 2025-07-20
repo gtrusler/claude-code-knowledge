@@ -32,6 +32,7 @@ community/                 # Manually curated insights
 ├── best-practices.md     # Proven patterns that work
 ├── gotchas.md           # Things the docs don't tell you
 ├── examples.md          # Real-world usage patterns
+├── claude-md-examples.md # CLAUDE.md best practices
 └── multi-agent-tools.md # Advanced orchestration tools
 ```
 
