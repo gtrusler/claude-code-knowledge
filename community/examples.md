@@ -167,6 +167,106 @@ elif 'waiting for your input' in message.lower():
     print(f"[{datetime.now()}] Claude is waiting", file=open('/tmp/claude-waiting.log', 'a'))
 ```
 
+## Context Management Patterns
+
+### Hierarchical Claude.md Files
+*Source: Claude Code community presentation - Jan 2025*
+
+Instead of one root `claude.md`, create detailed files in each subfolder:
+
+```
+project/
+├── claude.md              # High-level overview
+├── frontend/
+│   └── claude.md          # Frontend-specific details
+├── backend/
+│   └── claude.md          # Backend-specific details
+└── docs/
+    ├── claude.md          # Documentation patterns
+    ├── changelog.md       # Track why changes were made
+    └── plan.md           # Current project goals
+```
+
+**Root claude.md example:**
+```markdown
+# Project Overview
+Frontend: React + TypeScript (see ./frontend/claude.md)
+Backend: Node.js + Express (see ./backend/claude.md)
+
+## Cross-cutting Concerns
+- Auth handled by backend, tokens stored in frontend
+- Database migrations in ./backend/migrations/
+- API documentation auto-generated from schemas
+```
+
+### Multiple Context Reviewer Pattern
+*Source: Claude Code community presentation - Jan 2025*
+
+Use separate Claude instances for different roles:
+
+```bash
+# Tab 1: Context Builder
+"Prepare to discuss our authentication system architecture"
+# Build deep context, double escape
+
+# Tab 2: Planner (fresh instance) 
+"My developer created this plan for auth improvements: [paste plan]
+What are the risks and issues with this approach?"
+
+# Tab 3: Executor (use saved context)
+resume  # Gets the deep context from Tab 1
+"Execute this refined plan: [final plan]"
+```
+
+This prevents Claude from being too positive about its own plans.
+
+## GitHub Integration Hacks
+
+### Custom GitHub Actions with Opus
+*Source: Claude Code community presentation - Jan 2025*
+
+When setting up GitHub integration, you can modify the generated YAML:
+
+```yaml
+# In .github/workflows/claude-code.yml
+# Uncomment this line to use Opus instead of Sonnet:
+model: claude-3-5-opus-20241022
+
+# Add OAuth support for max plan usage
+auth:
+  type: oauth  # Uses your max plan instead of API key
+```
+
+### Enhanced GitHub Integration
+*Source: Claude Code community presentation - Jan 2025*
+
+You can customize the GitHub integration to include MCPs and additional tooling:
+
+```yaml
+# Add MCPs to your GitHub workflow
+environment:
+  CUSTOM_MCPS: |
+    - mcp__github__search
+    - mcp__linear__tasks
+    
+# Point to additional config files
+config_files:
+  - ./docs/api-guide.md
+  - ./docs/database-patterns.md
+  
+# Custom bash tooling access
+permissions:
+  - gh cli
+  - docker
+  - npm scripts
+```
+
+**Multi-task automation example:**
+```bash
+# Create multiple PRs from a list
+claude do "Generate PRs for these features: auth, payments, notifications. Tag @claude in each."
+```
+
 ## Advanced Patterns
 
 ### Context-Aware Auto-Completion

@@ -57,6 +57,97 @@ Claude Code sometimes assumes current directory incorrectly. Always verify with 
 - Use file paths instead of descriptions
 - Clear context between major task switches
 
+## Workflow Patterns
+
+### The Core Loop: Explore → Plan → Execute
+*Source: Claude Code community presentation - Jan 2025*
+
+**Always follow this sequence:**
+1. **Explore**: Invest tokens to build context first
+2. **Plan**: Think through the approach (use thinking mode)  
+3. **Execute**: Let Claude run with the plan
+
+**Don't skip exploration** - Claude needs deep context to work well.
+
+### Context Investment Strategy
+Instead of: "Read the code and fix this"
+Try: "Prepare to discuss how our frontend architecture works"
+
+This forces Claude to spend 50,000+ tokens understanding your codebase before attempting changes.
+
+### Multi-Instance Workflow
+*Source: Claude Code community presentation - Jan 2025*
+
+Use **double escape** to fork conversations and preserve expensive context:
+1. Build context (expensive)
+2. Double escape to save that context
+3. Open multiple tabs with `resume` command
+4. Each tab has the same deep context
+
+**Example workflow:**
+```bash
+# Tab 1: Build context
+"Prepare to discuss our API architecture"
+# Double escape to save
+
+# Tab 2: Planning
+resume # Gets full context
+"Plan how to add authentication"
+
+# Tab 3: Execution  
+resume # Same full context
+"Execute the authentication plan"
+```
+
+### Model Selection Strategy
+*Source: Claude Code community presentation - Jan 2025*
+
+- **Sonnet 4 with thinking** often better than Opus for most tasks
+- **Opus** burns through max plan limits quickly
+- Use `/model` command to switch between them
+- For exploration: Use regular Sonnet (save tokens)
+- For planning: Use Sonnet with thinking hard
+- For complex execution: Consider Opus if budget allows
+
+## Risk-Based Planning
+
+### Task Size Classification
+*Source: Claude Code community presentation - Jan 2025*
+
+**Small tasks**: Skip formal planning, just execute
+- Single function changes
+- Simple bug fixes
+- Documentation updates
+
+**Medium tasks**: Break into testable, deployable PRs
+- Feature additions
+- Refactoring components
+- Integration work
+
+**High-risk tasks**: Multiple planning iterations required
+- Architecture changes
+- Database migrations
+- Security implementations
+
+**Planning workflow for high-risk:**
+1. Create initial plan with Claude
+2. Open fresh tab, get same context with `resume`
+3. Ask the fresh Claude: "My developer proposed this plan. What are the risks?"
+4. Iterate until you have confidence
+
+### Anti-Enterprise Prompting
+*Source: Claude Code community presentation - Jan 2025*
+
+Claude defaults to over-engineering. Combat this with explicit constraints:
+
+```
+Write elegant code that completes this task.
+- No backwards compatibility
+- No graceful fallbacks  
+- No enterprise abstractions
+- Keep it simple and direct
+```
+
 ## Custom Slash Commands
 
 ### Simple Hello World Command

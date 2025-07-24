@@ -51,15 +51,29 @@
 **Problem**: Mixes up details from different parts of conversation
 **Fix**: Use `/clear` liberally
 
-## Hooks System Quirks
+## Context Management Gotchas
 
-### Exit Code 0 Blindness
-**Problem**: Claude doesn't see stdout when hook exits with 0
-**Solution**: Use exit code 2 for feedback to Claude
+### Don't Use Compact
+*Source: Claude Code community presentation - Jan 2025*
 
-### Matcher Patterns
-**Problem**: `"*"` doesn't work as expected
-**Solution**: Use empty string `""` for catch-all
+**Problem**: `/compact` generates weak summaries that make Claude "dumb"
+**Solution**: Use rewind instead - go back to 40% context when hitting 5%
+
+**Better approach:**
+1. Document what you've done: "Claude, summarize our progress"
+2. Rewind to earlier conversation point  
+3. Resume with: "Here's what I've done so far. Continue."
+
+### Context Investment Confusion
+*Source: Claude Code community presentation - Jan 2025*
+
+**Problem**: Jumping straight to execution without building context
+**Symptom**: Claude makes obvious mistakes, doesn't understand codebase patterns
+**Solution**: Always invest in context first with "prepare to discuss" prompts
+
+**Example:**
+❌ "Fix this authentication bug"
+✅ "Prepare to discuss how our authentication system works" → then ask for fixes
 
 ## MCP Tool Gotchas
 
@@ -158,3 +172,25 @@
 **Cause**: Incorrect internal path handling on Windows
 **Impact**: Can read files but crashes on edit attempts
 **Status**: Active bug with Windows path encoding
+
+## Planning Gotchas
+
+### Over-Engineering Default
+*Source: Claude Code community presentation - Jan 2025*
+
+**Problem**: Claude defaults to enterprise-ready solutions
+**Symptom**: Plans include graceful fallbacks, backwards compatibility, complex abstractions
+**Solution**: Explicitly tell Claude to keep it simple
+
+**Example prompt:** "Write elegant code. No backwards compatibility. No graceful fallbacks."
+
+### Plan Mode vs Manual Planning
+*Source: Claude Code community presentation - Jan 2025*
+
+**Problem**: Built-in plan mode often produces weak plans
+**Solution**: Ask Claude to plan manually with specific constraints
+
+**Better approach:**
+- "Write function names and 1-3 sentences about what they do"
+- "Write test names in 5-10 words describing behavior"
+- Force architectural thinking, not implementation details
