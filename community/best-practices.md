@@ -2,6 +2,51 @@
 
 *Community-discovered patterns that work well*
 
+## Sub Agents (New Feature)
+
+### What They Are
+*Source: Official docs - January 2025*
+
+Sub agents are specialized AI assistants that Claude Code can delegate tasks to:
+- Each has its own context window (preserves main conversation)
+- Custom system prompts for specific expertise
+- Configurable tool permissions
+- Stored in `.claude/agents/` (project) or `~/.claude/agents/` (user)
+
+### Quick Setup
+```bash
+# Interactive creation
+/agents
+
+# Manual creation
+mkdir -p .claude/agents
+cat > .claude/agents/test-runner.md << 'EOF'
+---
+name: test-runner
+description: Use proactively to run tests and fix failures
+tools: Read, Edit, Bash, Grep  # Optional - inherits all if omitted
+---
+
+You are a test automation expert. When you see code changes, 
+proactively run the appropriate tests. If tests fail, analyze 
+the failures and fix them.
+EOF
+```
+
+### Best Practices
+- **Generate with Claude first**: Use `/agents` to create, then customize
+- **Single responsibility**: One clear purpose per sub agent
+- **Proactive descriptions**: Include "use PROACTIVELY" or "MUST BE USED"
+- **Limit tools**: Only grant necessary tools for better focus
+- **Version control**: Check project agents into git
+
+### Common Sub Agent Patterns
+- **code-reviewer**: Reviews after any code changes
+- **test-runner**: Runs tests and fixes failures
+- **debugger**: Root cause analysis specialist
+- **optimizer**: Performance improvements
+- **documenter**: Keeps docs in sync
+
 ## Project Management
 
 ### Use Slash Commands Early and Often

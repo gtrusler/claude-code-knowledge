@@ -231,3 +231,127 @@ STOP hook with macOS notifications:
 - Uses Terminal-Notifier for desktop notifications
 - Triggers when Claude Code finishes response
 - Integrated with https://github.com/centminmod/terminal-notifier-setup
+
+# Claude Code Spec Workflow
+*Source: https://www.npmjs.com/package/@pimzino/claude-code-spec-workflow - January 2025*
+
+Automated Kiro-style Spec workflow for Claude Code. Transforms feature ideas into complete implementations through a structured Requirements → Design → Tasks → Implementation process.
+
+## Key Innovation: Structured Spec-Driven Development
+
+### The Workflow
+1. **Requirements Phase**: Generates user stories and acceptance criteria using EARS format
+2. **Design Phase**: Creates technical architecture with Mermaid diagrams
+3. **Tasks Phase**: Breaks design into atomic, test-driven coding tasks
+4. **Implementation Phase**: Executes tasks systematically with validation
+
+## Installation
+
+### Quick Start (NPX)
+```bash
+# Run once in your project directory
+npx @pimzino/claude-code-spec-workflow
+
+# Test the setup
+npx @pimzino/claude-code-spec-workflow test
+```
+
+### Global Installation
+```bash
+npm install -g @pimzino/claude-code-spec-workflow
+claude-spec-setup
+```
+
+### Project Dependency
+```bash
+npm install --save-dev @pimzino/claude-code-spec-workflow
+npx claude-spec-setup
+```
+
+## Created Structure
+```
+your-project/
+├── .claude/
+│   ├── commands/
+│   │   ├── spec-create.md
+│   │   ├── spec-requirements.md
+│   │   ├── spec-design.md
+│   │   ├── spec-tasks.md
+│   │   ├── spec-execute.md
+│   │   ├── spec-status.md
+│   │   └── spec-list.md
+│   ├── templates/
+│   │   ├── requirements-template.md
+│   │   ├── design-template.md
+│   │   └── tasks-template.md
+│   ├── specs/
+│   │   └── (your specs will be created here)
+│   └── spec-config.json
+└── CLAUDE.md (created/updated)
+```
+
+## Slash Commands
+
+After setup, use these commands in Claude Code:
+
+```bash
+# Create a new feature spec
+/spec-create user-authentication "Secure login system"
+
+# Generate requirements document
+/spec-requirements
+
+# Create design document
+/spec-design
+
+# Generate implementation tasks
+/spec-tasks
+
+# Execute specific tasks
+/spec-execute 1
+
+# Check status
+/spec-status
+
+# List all specs
+/spec-list
+```
+
+## CLI Options
+```bash
+# Setup in specific directory
+npx @pimzino/claude-code-spec-workflow --project /path/to/project
+
+# Force overwrite existing files
+npx @pimzino/claude-code-spec-workflow --force
+
+# Skip confirmation prompts
+npx @pimzino/claude-code-spec-workflow --yes
+```
+
+## Key Features
+- **Auto-Detection**: Works with any project type (Node.js, Python, Java, etc.)
+- **Safety First**: Preserves existing CLAUDE.md content
+- **Beautiful CLI**: Progress indicators and helpful error messages
+- **Comprehensive Templates**: Includes all necessary templates and configs
+- **TDD Focus**: Emphasizes test-driven development in task generation
+
+## Why It's Valuable
+- **Structured Approach**: Forces systematic thinking through requirements before implementation
+- **EARS Format**: Industry-standard requirements format (WHEN/IF/THEN)
+- **Visual Design**: Mermaid diagrams for architecture visualization
+- **Atomic Tasks**: Breaks work into manageable, testable chunks
+- **Quality Gates**: Built-in validation against requirements
+
+## Comparison with Other Tools
+Unlike multi-agent tools that focus on parallel execution, this tool emphasizes:
+- **Sequential Workflow**: Requirements → Design → Implementation
+- **Documentation First**: All work starts with specs
+- **Single Agent**: Works with standard Claude Code, no multi-agent complexity
+- **Project Agnostic**: Works with any language or framework
+
+## Best Use Cases
+1. **New Features**: Start with clear requirements before coding
+2. **Complex Systems**: Break down into manageable specs
+3. **Team Projects**: Shared understanding through specs
+4. **Legacy Refactoring**: Document current state before changes

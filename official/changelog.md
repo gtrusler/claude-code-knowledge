@@ -22,6 +22,12 @@ Each entry includes:
 - *Source: GitHub issues + Anthropic documentation*
 
 ### January 2025
+- **Sub Agents Feature Released** (`/agents` command):
+  - Specialized AI assistants with custom prompts
+  - Separate context windows preserve main conversation
+  - Project (`.claude/agents/`) and user (`~/.claude/agents/`) levels
+  - Configurable tool permissions per agent
+  - Interactive creation and management interface
 - **Multi-Agent Tools Released**:
   - Parallax: Parallel agent orchestration in Git worktrees
   - Axivo Claude: Profile system with persistent memory
@@ -34,7 +40,7 @@ Each entry includes:
 - **Sub-task with agents** keyword for parallel file operations
 - **Claude Max Limitations** clarified - no headless mode with subscription
 - **Memory-bank Pattern** popularized for complex projects
-- *Source: GitHub repositories + NPM packages + Anthropic blog*
+- *Source: GitHub repositories + NPM packages + Anthropic blog + Official docs*
 
 ## 2024
 

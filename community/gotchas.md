@@ -2,6 +2,30 @@
 
 *Things that trip people up (and how to avoid them)*
 
+## Sub Agent Gotchas
+*Source: Official docs - January 2025*
+
+### Context Starts Fresh
+**Problem**: Sub agents start with zero context from main conversation
+**Solution**: Include all necessary context in your request
+
+### Tool Inheritance Confusion
+**Problem**: Omitting `tools:` field gives agent ALL tools (including MCP)
+**Symptom**: Agent has more permissions than expected
+**Fix**: Explicitly list tools if you want restrictions
+
+### Name Conflicts
+**Problem**: Project agent and user agent with same name
+**Solution**: Project agents take precedence - check with `/agents`
+
+### Performance Overhead
+**Problem**: Sub agents add latency as they gather context
+**Solution**: Keep prompts focused, provide specific context
+
+### The "PROACTIVELY" Trick
+**Problem**: Claude doesn't use your sub agent automatically
+**Fix**: Add "use PROACTIVELY" or "MUST BE USED" to description
+
 ## The Big Ones
 
 ### Git Worktree Confusion
