@@ -218,3 +218,30 @@
 - "Write function names and 1-3 sentences about what they do"
 - "Write test names in 5-10 words describing behavior"
 - Force architectural thinking, not implementation details
+
+## Hooks System Quirks
+
+### Exit Code 0 Blindness
+**Problem**: Claude doesn't see stdout when hook exits with 0
+**Solution**: Use exit code 2 for feedback to Claude
+
+### Matcher Patterns
+**Problem**: `"*"` doesn't work as expected
+**Solution**: Use empty string `""` for catch-all
+
+### Hook Priority Order
+*Source: https://github.com/disler/claude-code-hooks-mastery - January 2025*
+
+**Problem**: Multiple control mechanisms can conflict
+**Solution**: Understand priority order:
+1. `"continue": false` - Takes precedence over all
+2. `"decision": "block"` - Hook-specific blocking
+3. Exit Code 2 - Simple blocking via stderr
+4. Other Exit Codes - Non-blocking errors
+
+### Hook Timeout Limit
+*Source: https://github.com/disler/claude-code-hooks-mastery - January 2025*
+
+**Problem**: Hooks have 60-second execution limit
+**Symptom**: Long-running hooks fail silently
+**Solution**: Keep hooks lightweight, offload heavy work

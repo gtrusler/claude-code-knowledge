@@ -267,6 +267,134 @@ permissions:
 claude do "Generate PRs for these features: auth, payments, notifications. Tag @claude in each."
 ```
 
+## UV Single-File Script Hooks
+*Source: https://github.com/disler/claude-code-hooks-mastery - January 2025*
+
+### Complete Hook Lifecycle Implementation
+Using UV for isolated dependency management in hooks:
+
+```python
+#!/usr/bin/env python3
+# /// script
+# dependencies = ["requests", "pyttsx3"]
+# ///
+
+# UV single-file script with embedded dependencies
+import json
+import sys
+import subprocess
+
+# All 5 hook lifecycle events:
+# 1. PreToolUse - Before tool execution (can block with exit 2)
+# 2. PostToolUse - After successful completion  
+# 3. Notification - Claude Code notifications
+# 4. Stop - When Claude finishes responding (can block)
+# 5. SubagentStop - When subagents complete
+
+def main():
+    event_data = json.load(sys.stdin)
+    
+    # Log everything for debugging
+    with open("logs/all_hooks.jsonl", "a") as f:
+        f.write(json.dumps(event_data) + "\n")
+    
+    # Example: Block dangerous commands
+    if event_data.get("hook_event_name") == "PreToolUse":
+        command = event_data.get("tool_input", {}).get("command", "")
+        if "rm -rf" in command:
+            print("BLOCKED: Dangerous command detected", file=sys.stderr)
+            sys.exit(2)  # Blocks execution and shows error to Claude
+```
+
+### Hook Exit Code Behavior
+*Source: https://github.com/disler/claude-code-hooks-mastery - January 2025*
+
+| Exit Code | Behavior | Hook-Specific Effects |
+|-----------|----------|----------------------|
+| 0 | Success | stdout shown in transcript mode (Ctrl-R) |
+| 2 | Blocking Error | PreToolUse: Blocks tool call<br>Stop: Forces continuation<br>Others: Shows error to Claude |
+| Other | Non-blocking Error | Shows stderr to user, continues |
+
+### Advanced Hook Control with JSON
+*Source: https://github.com/disler/claude-code-hooks-mastery - January 2025*
+
+```python
+# PreToolUse - Bypass permission system
+output = {
+    "decision": "approve",  # or "block"
+    "reason": "Security check passed"
+}
+print(json.dumps(output))
+sys.exit(0)
+
+# Stop hook - Prevent Claude from stopping
+output = {
+    "decision": "block",
+    "reason": "Tests are still failing, please fix them first"
+}
+print(json.dumps(output))
+sys.exit(0)
+```
+
+### Intelligent TTS Notifications
+*Source: https://github.com/disler/claude-code-hooks-mastery - January 2025*
+
+```python
+#!/usr/bin/env python3
+# /// script
+# dependencies = ["elevenlabs", "openai", "pyttsx3"]
+# ///
+
+import os
+import json
+import sys
+import random
+
+def notify_with_tts(message):
+    """Multi-provider TTS with fallback"""
+    engineer_name = os.getenv("ENGINEER_NAME", "")
+    
+    # 30% chance to include name
+    if engineer_name and random.random() < 0.3:
+        message = f"{engineer_name}, {message}"
+    
+    # Try providers in order
+    providers = [
+        lambda m: elevenlabs_tts(m),
+        lambda m: openai_tts(m),
+        lambda m: pyttsx3_tts(m)
+    ]
+    
+    for provider in providers:
+        try:
+            provider(message)
+            break
+        except Exception:
+            continue
+```
+
+### Chat Transcript Extraction
+*Source: https://github.com/disler/claude-code-hooks-mastery - January 2025*
+
+Convert Claude's JSONL chat format to readable JSON:
+
+```python
+# In PostToolUse hook
+if tool_name == "Read" and ".jsonl" in file_path:
+    try:
+        # Convert JSONL to pretty JSON
+        lines = tool_response.get("content", "").strip().split("\n")
+        messages = [json.loads(line) for line in lines if line]
+        
+        # Save readable format
+        with open("logs/chat.json", "w") as f:
+            json.dump(messages, f, indent=2)
+            
+        print("Chat transcript converted to logs/chat.json", file=sys.stderr)
+    except Exception as e:
+        print(f"Transcript conversion failed: {e}", file=sys.stderr)
+```
+
 ## Advanced Patterns
 
 ### Context-Aware Auto-Completion
